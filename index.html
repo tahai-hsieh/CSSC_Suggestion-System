@@ -42,7 +42,7 @@
             margin-bottom: 30px; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
             border: 1px solid #333;
-            position: relative; /* 確保按鈕定位參考此框 */
+            position: relative;
         }
 
         .quiz-card.marked { 
@@ -55,7 +55,7 @@
             font-weight: bold; 
             margin-bottom: 20px; 
             display: block; 
-            padding-right: 50px; /* 留出右側空間給圖示 */
+            padding-right: 50px; 
         }
         
         .options-group { display: flex; flex-direction: column; gap: 12px; }
@@ -79,15 +79,14 @@
             background-color: #332940; 
         }
 
-        /* 驚嘆號三角形按鈕樣式 */
         .mark-btn {
             position: absolute;
             top: 15px;
             right: 15px;
             background: none;
             border: none;
-            color: #555; /* 平時暗色 */
-            font-size: 1.8rem; /* 圖示大小 */
+            color: #555; 
+            font-size: 1.8rem; 
             cursor: pointer;
             transition: 0.3s;
             padding: 0;
@@ -96,7 +95,6 @@
         
         .mark-btn:hover { color: #888; }
 
-        /* 啟用後的警告橘色 */
         .mark-btn.active { 
             color: #ffab40; 
             filter: drop-shadow(0 0 5px rgba(255, 171, 64, 0.5));
@@ -157,7 +155,7 @@
 </div>
 
 <script>
-    const quizData = [
+    const originalData = [
         { q: "為引導學校深化性別平等教育，建構性別友善校園環境，教育部訂哪一天為「性別平等教育日」？", o: ["3 月 19 日", "4 月 20 日", "5 月 21 日", "6 月 22 日"], a: 1, r: "為紀念葉永鋕事件並推動性別平等教育，教育部將此日訂為性別平等教育日。" },
         { q: "近年來國小、國中、高級中等教育學校分別購置數位學習行動載具及行動充電車，主要係配合教育部何方案計畫施行？", o: ["建構韌性防災校園與防災科技資源應用計畫", "2030 雙語國家政策計畫", "推動中小學數位學習精進方案", "建構合作共享的校園圖書館系統中長程計畫"], a: 2, r: "此方案即所謂的「班班有網路，生生用平板」，重點在於數位學習資源與硬體的充實。" },
         { q: "十二年國教新課綱提到的「跨領域統整課程」是指什麼？", o: ["由不同學科的老師共同教授同一門部定必修課程", "打破單一特定學門的界限，提供學生各種可能的學科領域連結互動的學習", "學生所修習的必修課程必須包含語文、社會、自然科學、藝術等不同領域的課程", "除了部定必修課程外，學生必須選修有別於部定必修的領域之課程。"], a: 1, r: "跨領域統整的核心在於串連不同學門知識，幫助學生進行整合性學習。" },
@@ -181,7 +179,7 @@
         { q: "依據性別平等教育法，下列敘述何者錯誤？", o: ["教材應多元", "應利用空白課程進行性平教育", "不得因性別有差別待遇", "每學期至少四小時。"], a: 1, r: "性平教育應融入課程，不應只依賴空白課程。" },
         { q: "重視新移民原生文化展現多元精神，是在落實？", o: ["教育機會均等", "社會化", "社會階層化", "選擇與分配。"], a: 0, r: "透過文化認同促進教育場域的公平與尊嚴。" },
         { q: "根據《教師法》，下列何者「不是」教師的義務？", o: ["擔任導師", "參加教師組織", "維護學生受教權益", "從事研究進修。"], a: 1, r: "參加教師組織是教師的「權利」。" },
-        { q: "「2030 雙語國家」政策藍圖中，「不包括」哪一項？", o: ["延伸至幼兒園", "中小學各學科英語授課", "英語科全英語授課", "推聯學位。"], a: 1, r: "並非所有學科都全英，而是部分學科推動雙語。" },
+        { q: "「2030 雙語國家」政策藍圖中，「不包括」哪一項？", o: ["延伸至幼兒園", "中小學各學科英語授課", "英語科全英語授課", "推動雙聯學位。"], a: 1, r: "並非所有學科都全英，而是部分學科推動雙語。" },
         { q: "家長現在最重視的議題是？", o: ["親子關係", "品格教育", "心理健康", "成績課業。"], a: 1, r: "品格教育（價值觀）始終是家長最關注的首位。" },
         { q: "關於學校本位課程的陳述，何者為非?", o: ["學校自主改革", "由中央統籌指導", "發揮學校特色", "結合社區發展。"], a: 1, r: "校本課程強調學校自主與彈性。" },
         { q: "教師主動學習新教學法並應用，符合哪個圖像向度？", o: ["教育愛", "專業力", "未來力", "批判力。"], a: 2, r: "未來力代表應對變遷與持續精進的能力。" },
@@ -200,11 +198,65 @@
         { q: "教師違反重大情事被「暫時停止」聘約稱為？", o: ["停聘", "解聘", "不續聘", "懸缺。"], a: 0, r: "停聘指聘約的中途暫停。" }
     ];
 
+    let currentQuizData = [];
     const list = document.getElementById('quiz-list');
 
-    function initQuiz() {
+    function shuffle(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex != 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    }
+
+    // 儲存進度到本地
+    function saveProgress() {
+        const answers = {};
+        const marks = {};
+        currentQuizData.forEach((item, i) => {
+            const selected = document.querySelector(`input[name="q${i}"]:checked`);
+            if(selected) answers[i] = selected.value;
+            
+            const btn = document.getElementById(`mark-${i}`);
+            if(btn && btn.classList.contains('active')) marks[i] = true;
+        });
+
+        const progress = {
+            data: currentQuizData,
+            answers: answers,
+            marks: marks
+        };
+        localStorage.setItem('quiz_progress', JSON.stringify(progress));
+    }
+
+    // 從本地恢復進度
+    function loadProgress() {
+        const saved = localStorage.getItem('quiz_progress');
+        if(!saved) return false;
+
+        const progress = JSON.parse(saved);
+        currentQuizData = progress.data;
+        renderQuiz();
+
+        // 填回答案與標記
+        for (const [i, val] of Object.entries(progress.answers)) {
+            const input = document.querySelector(`input[name="q${i}"][value="${val}"]`);
+            if(input) {
+                input.checked = true;
+                selectOpt(i, val, false); // false 表示不重複觸發存檔
+            }
+        }
+        for (const [i, isActive] of Object.entries(progress.marks)) {
+            if(isActive) toggleMark(i, false);
+        }
+        return true;
+    }
+
+    function renderQuiz() {
         list.innerHTML = '';
-        quizData.forEach((item, i) => {
+        currentQuizData.forEach((item, i) => {
             const card = document.createElement('div');
             card.className = 'quiz-card';
             card.id = `card-${i}`;
@@ -219,7 +271,6 @@
                 `;
             });
 
-            // 標記按鈕改為三角形符號 ⚠
             card.innerHTML = `
                 <button class="mark-btn" id="mark-${i}" onclick="toggleMark(${i})" title="標記此題">⚠</button>
                 <div class="question">${i+1}. ${item.q}</div>
@@ -228,31 +279,46 @@
             `;
             list.appendChild(card);
         });
+    }
+
+    function initQuiz() {
+        // 先嘗試從暫存讀取
+        if (!loadProgress()) {
+            currentQuizData = shuffle([...originalData]);
+            renderQuiz();
+            saveProgress();
+        }
         document.getElementById('submit-all').style.display = 'inline-block';
         document.getElementById('reset-all').style.display = 'none';
         document.getElementById('summary-panel').style.display = 'none';
     }
 
-    window.selectOpt = function(qi, oi) {
+    window.selectOpt = function(qi, oi, shouldSave = true) {
         for(let j=0; j<4; j++) {
             const lbl = document.getElementById(`label-${qi}-${j}`);
             if(lbl) lbl.classList.remove('selected');
         }
-        document.getElementById(`label-${qi}-${oi}`).classList.add('selected');
+        const target = document.getElementById(`label-${qi}-${oi}`);
+        if(target) target.classList.add('selected');
+        
+        if(shouldSave) saveProgress();
     };
 
-    window.toggleMark = function(i) {
+    window.toggleMark = function(i, shouldSave = true) {
         const btn = document.getElementById(`mark-${i}`);
         const card = document.getElementById(`card-${i}`);
-        btn.classList.toggle('active');
-        card.classList.toggle('marked');
+        if(btn && card) {
+            btn.classList.toggle('active');
+            card.classList.toggle('marked');
+        }
+        if(shouldSave) saveProgress();
     };
 
     window.submitQuiz = function() {
         if(!confirm('確定要送出試卷嗎？')) return;
 
         let correctCount = 0;
-        quizData.forEach((item, i) => {
+        currentQuizData.forEach((item, i) => {
             const selected = document.querySelector(`input[name="q${i}"]:checked`);
             const resBox = document.getElementById(`res-${i}`);
             resBox.style.display = 'block';
@@ -278,20 +344,29 @@
         const summary = document.getElementById('summary-panel');
         summary.style.display = 'block';
         document.getElementById('score-title').innerText = `對題數：${correctCount} / 40`;
-        document.getElementById('summary-msg').innerText = `謝佳杰，測驗已完成！正確率為 ${(correctCount/40*100).toFixed(0)}%。加油！（較建議此版本）`;
+        document.getElementById('summary-msg').innerText = `謝佳杰，測驗已完成！正確率為 ${(correctCount/40*100).toFixed(0)}%。加油！`;
 
         document.getElementById('submit-all').style.display = 'none';
         document.getElementById('reset-all').style.display = 'inline-block';
+        
+        // 送出後清除儲存紀錄
+        localStorage.removeItem('quiz_progress');
         window.scrollTo({ top: summary.offsetTop - 50, behavior: 'smooth' });
     };
 
     window.resetQuiz = function() {
-        if(confirm('重新開始？')) {
-            initQuiz();
+        if(confirm('重新開始將會清除目前進度，確定嗎？')) {
+            localStorage.removeItem('quiz_progress');
+            currentQuizData = shuffle([...originalData]);
+            renderQuiz();
+            document.getElementById('submit-all').style.display = 'inline-block';
+            document.getElementById('reset-all').style.display = 'none';
+            document.getElementById('summary-panel').style.display = 'none';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
+    // 啟動測驗
     initQuiz();
 </script>
 
