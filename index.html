@@ -20,24 +20,19 @@
 
         .container { max-width: 900px; margin: 0 auto; }
 
-        /* 標題調整：縮小字體並確保盡可能在同一行 */
         h1 { 
             text-align: center; 
             color: #ffffff; 
             margin-bottom: 40px; 
-            font-size: 1.6rem; /* 縮小字體 */
+            font-size: 1.6rem;
             letter-spacing: 1px;
-            white-space: nowrap; /* 強制不換行 */
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         
-        /* 行動裝置適應：如果螢幕太窄還是允許換行以免字體溢出 */
         @media (max-width: 600px) {
-            h1 { 
-                white-space: normal; 
-                font-size: 1.3rem;
-            }
+            h1 { white-space: normal; font-size: 1.3rem; }
         }
 
         .quiz-card { 
@@ -47,7 +42,7 @@
             margin-bottom: 30px; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
             border: 1px solid #333;
-            position: relative;
+            position: relative; /* 確保按鈕定位參考此框 */
         }
 
         .quiz-card.marked { 
@@ -60,7 +55,7 @@
             font-weight: bold; 
             margin-bottom: 20px; 
             display: block; 
-            padding-right: 80px; 
+            padding-right: 50px; /* 留出右側空間給圖示 */
         }
         
         .options-group { display: flex; flex-direction: column; gap: 12px; }
@@ -84,24 +79,27 @@
             background-color: #332940; 
         }
 
+        /* 驚嘆號三角形按鈕樣式 */
         .mark-btn {
             position: absolute;
-            top: 25px;
-            right: 25px;
+            top: 15px;
+            right: 15px;
             background: none;
-            border: 1px solid #666;
-            color: #aaa;
-            padding: 5px 10px;
-            border-radius: 5px;
+            border: none;
+            color: #555; /* 平時暗色 */
+            font-size: 1.8rem; /* 圖示大小 */
             cursor: pointer;
-            font-size: 0.85rem;
             transition: 0.3s;
+            padding: 0;
+            line-height: 1;
         }
+        
+        .mark-btn:hover { color: #888; }
+
+        /* 啟用後的警告橘色 */
         .mark-btn.active { 
-            background-color: #ffab40; 
-            color: #000; 
-            border-color: #ffab40; 
-            font-weight: bold;
+            color: #ffab40; 
+            filter: drop-shadow(0 0 5px rgba(255, 171, 64, 0.5));
         }
 
         .result-box { margin-top: 20px; padding: 18px; border-radius: 8px; display: none; font-size: 1.05rem; }
@@ -183,7 +181,7 @@
         { q: "依據性別平等教育法，下列敘述何者錯誤？", o: ["教材應多元", "應利用空白課程進行性平教育", "不得因性別有差別待遇", "每學期至少四小時。"], a: 1, r: "性平教育應融入課程，不應只依賴空白課程。" },
         { q: "重視新移民原生文化展現多元精神，是在落實？", o: ["教育機會均等", "社會化", "社會階層化", "選擇與分配。"], a: 0, r: "透過文化認同促進教育場域的公平與尊嚴。" },
         { q: "根據《教師法》，下列何者「不是」教師的義務？", o: ["擔任導師", "參加教師組織", "維護學生受教權益", "從事研究進修。"], a: 1, r: "參加教師組織是教師的「權利」。" },
-        { q: "「2030 雙語國家」政策藍圖中，「不包括」哪一項？", o: ["延伸至幼兒園", "中小學各學科英語授課", "英語科全英語授課", "推動雙聯學位。"], a: 1, r: "並非所有學科都全英，而是部分學科推動雙語。" },
+        { q: "「2030 雙語國家」政策藍圖中，「不包括」哪一項？", o: ["延伸至幼兒園", "中小學各學科英語授課", "英語科全英語授課", "推聯學位。"], a: 1, r: "並非所有學科都全英，而是部分學科推動雙語。" },
         { q: "家長現在最重視的議題是？", o: ["親子關係", "品格教育", "心理健康", "成績課業。"], a: 1, r: "品格教育（價值觀）始終是家長最關注的首位。" },
         { q: "關於學校本位課程的陳述，何者為非?", o: ["學校自主改革", "由中央統籌指導", "發揮學校特色", "結合社區發展。"], a: 1, r: "校本課程強調學校自主與彈性。" },
         { q: "教師主動學習新教學法並應用，符合哪個圖像向度？", o: ["教育愛", "專業力", "未來力", "批判力。"], a: 2, r: "未來力代表應對變遷與持續精進的能力。" },
@@ -221,8 +219,9 @@
                 `;
             });
 
+            // 標記按鈕改為三角形符號 ⚠
             card.innerHTML = `
-                <button class="mark-btn" id="mark-${i}" onclick="toggleMark(${i})">標記題目</button>
+                <button class="mark-btn" id="mark-${i}" onclick="toggleMark(${i})" title="標記此題">⚠</button>
                 <div class="question">${i+1}. ${item.q}</div>
                 <div class="options-group">${optionsHtml}</div>
                 <div id="res-${i}" class="result-box"></div>
@@ -247,7 +246,6 @@
         const card = document.getElementById(`card-${i}`);
         btn.classList.toggle('active');
         card.classList.toggle('marked');
-        btn.innerText = btn.classList.contains('active') ? '已標記' : '標記題目';
     };
 
     window.submitQuiz = function() {
