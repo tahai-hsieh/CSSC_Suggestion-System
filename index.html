@@ -3,248 +3,864 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>國立臺北藝術大學師資培育中心甄選題庫系統（114-116）</title>
+    <title>靜心高中學生會會長信箱 — 民意陳情系統</title>
     <style>
-        * { font-family: "標楷體", "DFKai-SB", "BiauKai", serif; box-sizing: border-box; }
-        body { background-color: #121212; color: #e0e0e0; line-height: 1.6; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 850px; }
-        .nav-bar { background-color: #303f9f; padding: 15px; border-radius: 8px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .nav-item { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: bold; cursor: pointer; position: relative; background-color: #fff; color: #303f9f; transition: 0.2s; border: 2px solid transparent; }
-        .nav-item:hover { transform: scale(1.1); }
-        .nav-item.answered { background-color: #9e9e9e; color: #fff; }
-        .nav-item.current { border: 3px solid #ffeb3b; }
-        .nav-item.correct { background-color: #fff !important; color: #303f9f !important; }
-        .nav-item.wrong { background-color: #f44336 !important; color: #fff !important; }
-        .nav-item.marked::after { content: "⚠️"; position: absolute; bottom: -6px; right: -6px; font-size: 12px; z-index: 5; }
+        body {
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            background: #1e1e1e;
+            margin: 40px auto;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        h2 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+        .welcome-text {
+            text-align: center;
+            color: #aaaaaa;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+        .section-title {
+            font-size: 18px;
+            color: #3b82f6;
+            border-left: 4px solid #3b82f6;
+            padding-left: 10px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .section-title-banner {
+            background-color: #1d3557;
+            color: #a8dadc;
+            padding: 12px 15px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #cccccc;
+        }
+        input[type="text"], input[type="email"], input[type="tel"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            background-color: #2d2d2d;
+            border: 1px solid #444444;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+            color: #ffffff;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+        }
+        /* ==================== 修改：圖 2 Email 提示詞下移與間距微調 ==================== */
+        .note {
+            font-size: 12px;
+            color: #aaaaaa;
+            margin-top: 6px; /* 增加上邊距，確保完全移到輸入框下方的空白處，不再重疊擠壓 */
+            margin-bottom: 10px;
+        }
+        /* ======================================================================== */
+        .required-star {
+            color: #ff6b6b;
+            font-weight: bold;
+            margin-left: 2px;
+        }
+        .form-hint-red {
+            font-size: 12px;
+            color: #ff6b6b;
+            margin-top: 4px;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        textarea {
+            resize: vertical;
+            height: 150px;
+        }
 
-        .quiz-card { background-color: #1e1e1e; border-radius: 12px; padding: 30px; min-height: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 1px solid #333; position: relative; display: none; }
-        .quiz-card.active { display: block; }
-        .question-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; margin-bottom: 25px; }
-        .question { font-size: 1.3rem; font-weight: bold; color: #fff; line-height: 1.5; flex: 1; }
-        .mark-btn { background: #333; border: 1px solid #444; color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 0.9rem; cursor: pointer; opacity: 0.6; transition: 0.3s; white-space: nowrap; }
-        .mark-btn.active { opacity: 1; border-color: #ffab40; color: #ffab40; }
+        .captcha-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .captcha-canvas {
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .captcha-btn {
+            background-color: #555555;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 38px;
+            width: 40px;
+        }
+        .captcha-btn:hover {
+            background-color: #666666;
+        }
 
-        .options-group { display: flex; flex-direction: column; gap: 12px; }
-        .option-label { display: flex; align-items: center; padding: 16px; background-color: #2c2c2c; border: 2px solid transparent; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 1.1rem; }
-        .option-label:hover { background-color: #383838; }
-        .option-label input { margin-right: 15px; transform: scale(1.3); flex-shrink: 0; }
-        .option-label span { flex: 1; }
-        .option-label.selected { border-color: #bb86fc; background-color: #332940; }
+        .drive-instruction-box {
+            background-color: #252525;
+            border: 1px dashed #555555;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #cccccc;
+            line-height: 1.6;
+        }
+        .drive-instruction-box ul {
+            margin: 5px 0 0 0;
+            padding-left: 20px;
+        }
 
-        .nav-btns { display: flex; justify-content: center; gap: 20px; margin-top: 30px; width: 100%; }
-        .btn { padding: 12px 25px; font-size: 1.05rem; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; }
-        .btn-prev { background-color: #555; color: #fff; }
-        .btn-next { background-color: #6200ee; color: #fff; }
-        .btn-submit { background-color: #03dac6; color: #000; }
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn-group-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+            transition: background 0.2s;
+        }
+        .btn-blue {
+            background-color: #2563eb;
+            color: white;
+        }
+        .btn-blue:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-gray {
+            background-color: #555555;
+            color: white;
+        }
+        .btn-gray:hover {
+            background-color: #666666;
+        }
+        .btn-red {
+            background-color: #dc2626;
+            color: white;
+        }
+        .btn-red:hover {
+            background-color: #b91c1c;
+        }
+        .btn-full {
+            width: 100%;
+        }
 
-        .result-box { margin-top: 20px; padding: 18px; border-radius: 8px; display: none; border-left: 5px solid; }
-        .correct-box { background-color: #1b5e20; color: #fff; border-color: #4caf50; }
-        .wrong-box { background-color: #b71c1c; color: #fff; border-color: #ff5252; }
-        .reason-box { background-color: #252525; color: #ffeb3b; padding: 15px; border-radius: 8px; margin-top: 10px; font-size: 1rem; border: 1px dashed #555; line-height: 1.4; }
+        .preview-value {
+            width: 100%;
+            padding: 10px;
+            background-color: #252525;
+            border: 1px solid #333333;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+            color: #ffffff;
+            min-height: 38px;
+            word-break: break-all;
+        }
+        .preview-textarea {
+            min-height: 120px;
+            white-space: pre-wrap;
+        }
 
-        #summary-panel { background-color: #1e1e1e; border: 3px solid #bb86fc; padding: 30px; border-radius: 15px; text-align: center; display: none; margin-top: 30px; width: 100%; }
+        .success-box {
+            background-color: #14532d;
+            border: 1px solid #166534;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.8;
+            margin: 20px 0;
+            color: #bbf7d0;
+        }
+        .case-number-text {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fde047;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        }
+
+        .status-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            margin-bottom: 25px;
+            background-color: #1e1e1e;
+        }
+        .status-table th, .status-table td {
+            border: 1px solid #444444;
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+        }
+        .status-table th {
+            background-color: #1d3557;
+            color: #a8dadc;
+            font-weight: bold;
+            width: 25%;
+        }
+        .status-table td {
+            background-color: #252525;
+            color: #ffffff;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .status-highlight-row th {
+            background-color: #1e3a8a !important;
+            color: #fde047 !important;
+        }
+        .status-highlight-row td {
+            font-weight: bold;
+            color: #fde047 !important;
+        }
+
+        .admin-case-card {
+            background-color: #252525;
+            border: 1px solid #444444;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .admin-case-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #444444;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #aaa;
+        }
+        .admin-case-id {
+            font-weight: bold;
+            color: #3b82f6;
+        }
+
+        .page {
+            display: none;
+        }
+        #page-home {
+            display: block;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2 style="text-align:center; margin-bottom: 20px; color: #fff; white-space: nowrap;">國立臺北藝術大學師資培育中心甄選題庫系統（114-116）</h2>
-    <div id="nav-bar" class="nav-bar"></div>
-    <div id="quiz-container"></div>
-    <div class="nav-btns">
-        <button id="prev-btn" class="btn btn-prev" onclick="changePage(-1)">上一題</button>
-        <button id="next-btn" class="btn btn-next" onclick="changePage(1)">下一題</button>
-        <button id="submit-btn-manual" class="btn btn-submit" onclick="handleFormSubmit()">送出答案</button>
+    <h2>🏛️ 靜心高中學生會會長信箱 — 民意陳情系統</h2>
+
+    <div id="page-home" class="page">
+        <p class="welcome-text">歡迎使用臺北市私立靜心高級中學學生會會長信箱（陳情系統），<br>您的意見是我們前進的動力！</p>
+        <div class="btn-group-vertical">
+            <button type="button" class="btn btn-blue" onclick="navigateTo('page-write')">我要寫信</button>
+            <button type="button" class="btn btn-gray" onclick="navigateTo('page-search')">案件進度查詢</button>
+        </div>
     </div>
-    <div id="summary-panel">
-        <h2 id="score-title"></h2>
-        <p id="summary-msg"></p>
-        <button class="btn btn-next" onclick="resetQuiz()">重新開始測驗</button>
-    </div>
-</div>
-<script>
-const originalData = [
-    { q: "1. 111 學年度起實施之「身心障礙學生無法參與國民體育實施辦法」修正案，關於身心障礙學生參與體育課之敘述，何者錯誤？", o: ["①學校應依學生需求提供無障礙環境及必要之輔具", "②應配合學生個別化教育計畫（IEP）提供體育教學及評量", "③身心障礙學生得申請免修體育課", "④學校得調整體育課之內容、器材、場地及評量方式"], a: 2, r: "新法強調「適應體育」，身心障礙學生不應直接免修體育課，而是應調整教學內容、提供輔具或環境支持，讓其能參與學習。" },
-    { q: "2. 下列何者不屬於《教育基本法》所規定的學生權利項目？", o: ["①學習權", "②受教育權", "③身體自主權及人格發展權", "④罷課權"], a: 3, r: "《教育基本法》第 8 條規定，學生享有學習權、受教育權、身體自主權及人格發展權，但並未賦予「罷課權」。" },
-    { q: "3. 依據《教師法》規定，教師有下列哪一情境者，學校應予解聘，且終身不得聘任為教師？", o: ["①體罰或霸凌學生，造成其身心嚴重侵害", "②教學不力或不能勝任工作，經輔導改善無效", "③連續請假超過一個月", "④在校外兼課或兼職"], a: 0, r: "涉及體罰或霸凌學生且情節嚴重者，依《教師法》第 14 條規定，應予解聘並終身不得聘任。" },
-    { q: "4. 下列何種評量方式最能呈現學生在一段時間內學習成長的軌跡？", o: ["①總結性評量", "②檔案評量", "③安置性評量", "④常模參照評量"], a: 1, r: "檔案評量（Portfolio Assessment）透過蒐集學生作品、反思紀錄，能具體呈現學習過程與進步軌跡。" },
-    { q: "5. 在課堂中，老師對回答正確的學生給予「貼紙」獎勵，這在行為主義心理學中屬於何種作用？", o: ["①負增強", "②懲罰", "③正增強", "④消弱"], a: 2, r: "正增強是給予個體喜愛的刺激（貼紙），以增加目標行為（正確回答）出現的頻率。" },
-    { q: "6. 皮亞傑(J. Piaget)的認知發展理論中，學生開始展現「邏輯思考能力」，但仍需具體事物輔助，是屬於哪個階段？", o: ["①感覺運動期", "②前運思期", "③具體運思期", "④形式運思期"], a: 2, r: "具體運思期（7-11 歲）已具備邏輯與可逆性，但思考仍侷限於具體事物或經驗。" },
-    { q: "7. 維高斯基(L. Vygotsky)提出的「鷹架理論」(Scaffolding)主要發生在下列哪個區域內？", o: ["①自我發展區", "②潛在發展區", "③已知領域區", "④近側發展區(ZPD)"], a: 3, r: "近側發展區（ZPD）是學生獨立解決問題與在成人引導下解決問題間的差距，鷹架即搭建在此區。" },
-    { q: "8. 108 課綱的核心素養不包括下列哪一個面向？", o: ["①自主行動", "②溝通互動", "③社會參與", "④學科競爭"], a: 3, r: "三面九項包含「自主行動」、「溝通互動」、「社會參與」，不包含學科競爭。" },
-    { q: "9. 「當學生看到同學因為熱心助人被老師稱讚，自己也跟著學習助人行為」，這是屬於班度拉(A. Bandura)提出的何種現象？", o: ["①替代強化", "②自我強化", "③直接強化", "④負強化"], a: 0, r: "替代強化（Vicarious Reinforcement）是指觀察者看到榜樣受獎勵，進而增強了自己的模仿動機。" },
-    { q: "10. 老師在教學後進行小考，目的是為了了解學生的學習狀況並及時調整教學。這屬於何種評量？", o: ["①診斷性評量", "②形成性評量", "③總結性評量", "④預測性評量"], a: 1, r: "形成性評量在教學過程中進行，用以提供師生回饋，隨時調整教學節奏。" },
-    { q: "11. 依據《少年事件處理法》，下列敘述何者正確？", o: ["①未滿 12 歲之人觸犯刑罰法律，由司法機關處理", "②少年保護事件由民事法庭審理", "③少年事件處理對象為 12 歲以上未滿 18 歲之人", "④少年保護事件之執行由警察機關主導"], a: 2, r: "少年事件處理法對象為 12 歲以上未滿 18 歲。未滿 12 歲回歸教育/社政體系（行政輔導優先）。" },
-    { q: "12. 在班級經營中，老師與學生共同訂定規範，讓學生參與決策。這屬於何種領導風格？", o: ["①威權型", "②放任型", "③民主型", "④忽視型"], a: 2, r: "民主型領導強調參與、溝通與協商，有助於培養學生的歸屬感與自治能力。" },
-    { q: "13. 加德納(H. Gardner)的多重智能理論中，擅長自我省思、了解自身優缺點的人具備哪種智能？", o: ["①人際智能", "②內省智能", "③邏輯智能", "④空間智能"], a: 1, r: "內省智能（Intrapersonal Intelligence）是指對自我的覺察、自律與反思能力。" },
-    { q: "14. 下列何者不是《技術及職業教育法》所強調的重點？", o: ["①推動產學合作", "②落實實作教學", "③僅重視學術研究方案", "④強化職業輔導"], a: 2, r: "技職教育法強調「實作性」與「產業連結」，不應僅偏重學術研究。" },
-    { q: "15. 「教育是為了讓靈魂脫離肉體的囚牢，轉向真理之光。」此種教育看法最接近哪位哲學家？", o: ["①柏拉圖(Plato)", "②杜威(Dewey)", "③盧梭(Rousseau)", "④尼采(Nietzsche)"], a: 0, r: "柏拉圖的《理想國》與洞穴寓言說明教育是靈魂轉向（真理）的歷程。" },
-    { q: "16. 布魯姆(Bloom)的教育目標分類中，最高層次的認知歷程是？", o: ["①理解", "②分析", "③評鑑", "④創造"], a: 3, r: "新版認知領域目標層次由低至高：記憶、了解、應用、分析、評鑑、創造。" },
-    { q: "17. 下列何者不屬於特殊教育法中「資賦優異」的類別？", o: ["①一般智能資賦優異", "②學術性向資賦優異", "③藝術才能資賦優異", "④體育技能卓越"], a: 3, r: "特教法第 4 條資優包含：一般智能、學術性向、藝術才能、創造力、領導才能及其他特殊才藝。" },
-    { q: "18. 在處理校園衝突時，老師引導學生表達感受並尋求修復關係，而非僅是處罰。這屬於何種輔導理念？", o: ["①威懾主義", "②修復式正義", "③應報主義", "④功利主義"], a: 1, r: "修復式正義強調受損關係的修復與對話，讓行為人了解責任並與受害者達成和解。" },
-    { q: "19. 根據《性別平等教育法》，校園性侵害、性騷擾或性霸凌事件應於多少小時內向主管機關通報？", o: ["①12 小時", "②24 小時", "③48 小時", "④72 小時"], a: 1, r: "依規定應於 24 小時內完成法定通報。" },
-    { q: "20. 杜威(J. Dewey)主張「教育即生活」，強調學生應透過何種方式學習？", o: ["①背誦經典", "②做中學(Learning by doing)", "③感官隔離", "④被動接收知識"], a: 1, r: "杜威實驗主義強調經驗、問題解決與實際動手作的過程。" },
-    { q: "21. 師資培育之大學辦理師資職前教育課程，應報請何機關核定？", o: ["①各縣市政府教育局", "②師資培育大學校長室", "③教育部", "④行政院"], a: 2, r: "師資職前教育課程及招生名額皆需由教育部核定。" },
-    { q: "22. 「比馬龍效應」(Pygmalion Effect)在教育上的啟示為何？", o: ["①學生的智力是天生的", "②教師的期待會影響學生的表現", "③環境是學習的唯一因素", "④處罰比獎勵更有效"], a: 1, r: "又稱自我實現預言，教師對學生的正面期待往往能引發學生的進步。" },
-    { q: "23. 下列何種教學法強調學生透過發現問題、提出假設、驗證假設來建構知識？", o: ["①講述教學法", "②編序教學法", "③探究教學法", "④練習教學法"], a: 2, r: "探究教學法（Inquiry-based learning）強調主動發現與科學探究的精神。" },
-    { q: "24. 依據《教師請假規則》，教師因公傷假，每次最長以幾年為限？", o: ["①半年", "②一年", "③二年", "④三年"], a: 2, r: "教師公傷假每次最長兩年。" },
-    { q: "25. 108 課綱中，關於「彈性學習課程」的規劃，下列敘述何者正確？", o: ["①只能用來加強國、數、英學科", "②由教育部統一規定課程內容", "③由各校自行規劃，包含統整性主題課程等", "④學生不可以參與選擇"], a: 2, r: "彈性學習課程旨在落實學校願景與特色，由學校課發會審核規劃。" },
-    { q: "26. 斯金納(B.F. Skinner)的編序教學法是基於何種學習理論？", o: ["①認知主義", "②建構主義", "③行為主義", "④人本主義"], a: 2, r: "編序教學運用了操作制約（連續減除法）與立即回饋的原理。" },
-    { q: "27. 在多元文化教育中，教師將不同族群的節慶、英雄帶進課程，這屬於 Banks 的哪一個發展階段？", o: ["①貢獻模式", "②附加模式", "③轉化模式", "④社會行動模式"], a: 0, r: "貢獻模式是最基礎的，僅將少數族群的內容加入主流課程，架構不變。" },
-    { q: "28. 有關「校園霸凌」的定義，下列敘述何者錯誤？", o: ["①具備持續性", "②具有傷害意圖", "③權力不對等", "④僅限於身體上的毆打"], a: 3, r: "霸凌包含言語、肢體、關係（排擠）、網路等多元形式，非僅限身體接觸。" },
-    { q: "29. 主張教育應以「學生為中心」，重視個人自由與責任，是何種哲學流派？", o: ["①存在主義", "②實證主義", "③理性主義", "④結構主義"], a: 0, r: "存在主義（Existentialism）強調個體的存在先於本質，強調選擇與自由。" },
-    { q: "30. 教師進行「反思教學」(Reflective Teaching)的主要目的是？", o: ["①向學生炫耀知識", "②滿足學校行政要求", "③持續檢視並改善自己的教學實務", "④為了通過評鑑"], a: 2, r: "反思教學是教師專業成長的核心，旨在改進教學效能。" },
-    { q: "31. 在輔導室的工作中，針對「一般學生」進行的預防性輔導稱為？", o: ["①初級預防", "②二級預防", "③三級預防", "④追蹤輔導"], a: 0, r: "初級預防（發展性輔導）針對全體學生；二級為介入性（高風險）；三級為處遇性（個案執行）。" },
-    { q: "32. 依據最新修訂《校園霸凌防制準則》，下列說明何者有誤？", o: ["①「霸凌」定義包含直接或間接對他人故意為貶抑、排擠等行為。", "②教職員工知悉疑似校園霸凌事件時，應於二十四小時內向權責人員通報。", "③「校園霸凌」僅指相同學校學生對學生，於校園內所發生之霸凌行為。", "④被霸凌人得向行為人於行為發生時所屬之學校申請調查。"], a: 2, r: "修正後之校園霸凌包含相同或不同學校之校長、教職員工及學生對學生之行為。" },
-    { q: "33. 根據法規：高級中等學校學生未經請假或不明原因未到校上課連續達三日以上者稱為何種類型學生？", o: ["①中途輟學學生(中輟生)", "②中途離校學生(中離生)", "③長期缺課學生(長缺生)", "④不明原因學生(不明生)。"], a: 1, r: "高中階段稱為「中離生」；國中小義務教育階段才稱為「中輟生」。" },
-    { q: "34. 下列何者不符合 108 課綱「自主行動」面向的內容？", o: ["①身心素質與自我精進", "②系統思考與解決問題", "③規畫執行與創新應變", "④符號運用與溝通表達"], a: 3, r: "「符號運用與溝通表達」屬於「溝通互動」面向。" },
-    { q: "35. 在德育教學中，柯爾伯格(L. Kohlberg)主張道德發展有三個水準六個階段，最高階段是？", o: ["①法律與秩序取向", "②社會契約取向", "③普遍倫理原則取向", "④避罰服從取向"], a: 2, r: "第六階段為普遍性道德倫理原則取向，個體依照自選的倫理原則及良心行事。" },
-    { q: "36. 關於「性別平等教育委員會」之設置，下列敘述何者錯誤？", o: ["①女性委員應占委員總數二分之一以上", "②置委員五人至二十一人", "③主任委員由學校校長擔任", "④學生代表不得參與"], a: 3, r: "學校性平會應有學生代表參與（視法規層級與各校章程，通常包含學生代表）。" },
-    { q: "37. 老師在課堂上透過對話、提問引導學生自行推導出正確概念，這源自於何種教育法？", o: ["①產婆法", "②精熟教學法", "③個別化教學法", "④直觀教學法"], a: 0, r: "蘇格拉底（Socrates）的產婆法（產出法），強調透過詰問與辯證導出真理。" },
-    { q: "38. 有關特教學生「個別化教育計畫」(IEP)，下列敘述何者有誤？", o: ["①應由專業團隊參與訂定", "②每學期至少檢討一次", "③僅適用於資賦優異學生", "④內容包含學生的學習目標、輔導方式及支持服務"], a: 2, r: "IEP 專用於身心障礙學生；資優學生使用的稱為個別輔導計畫（IGP）。" },
-    { q: "39. 有關「實驗教育」的類型，下列何者不包含在現行法規中？", o: ["①學校型態實驗教育", "②非學校型態實驗教育", "③公立學校委託私人辦理實驗教育", "④私人醫院附設實驗教育"], a: 3, r: "台灣實驗教育三法包含：學校型態、非學校型態（個人/團體/機構）及公立學校委派私人辦理。" },
-    { q: "40. 依據《教育基本法》之規定，下列何者為教育之主體？", o: ["①老師", "②家長", "③學生", "④政府"], a: 2, r: "《教育基本法》第 2 條明確規定「學生為教育之主體」。" }
-];
-<script>
-    let currentQuiz = 0;
-    let userAnswers = new Array(originalData.length).fill(null);
-    let markedQuestions = new Array(originalData.length).fill(false);
 
-    function initQuiz() {
-        const container = document.getElementById('quiz-container');
-        const navBar = document.getElementById('nav-bar');
-        
-        originalData.forEach((item, index) => {
-            // 建立導航按鈕
-            const navBtn = document.createElement('div');
-            navBtn.className = 'nav-item';
-            navBtn.id = `nav-${index}`;
-            navBtn.innerText = index + 1;
-            navBtn.onclick = () => changePage(index);
-            navBar.appendChild(navBtn);
-
-            // 建立題目卡片
-            const card = document.createElement('div');
-            card.className = `quiz-card ${index === 0 ? 'active' : ''}`;
-            card.id = `card-${index}`;
-
-            let optionsHtml = '';
-            item.o.forEach((opt, optIdx) => {
-                optionsHtml += `
-                    <label class="option-label" id="label-${index}-${optIdx}">
-                        <input type="radio" name="q${index}" onclick="selectOption(${index}, ${optIdx})">
-                        <span>${opt}</span>
-                    </label>
-                `;
-            });
-
-            card.innerHTML = `
-                <div class="question-header">
-                    <div class="question">${item.q}</div>
-                    <button class="mark-btn" id="mark-${index}" onclick="toggleMark(${index})">標記此題</button>
+    <div id="page-write" class="page">
+        <p style="text-align: center; color: #aaa;">請填寫以下資訊：</p>
+        <form id="petitionForm" onsubmit="handleFormSubmit(event)">
+            
+            <div class="section-title">一、陳情人基本資料</div>
+            <div class="form-group">
+                <label for="class_name">班級<span class="required-star">*</span></label>
+                <input type="text" id="class_name" required placeholder="例如：七年忠班">
                 </div>
-                <div class="options-group">${optionsHtml}</div>
-                <div class="result-box" id="result-${index}"></div>
-                <div class="reason-box" id="reason-${index}"><strong>【解析】</strong><br>${item.r}</div>
-            `;
-            container.appendChild(card);
-        });
-        updateNavStatus();
-    }
+            <div class="form-group">
+                <label for="seat_number">座號<span class="required-star">*</span></label>
+                <input type="text" id="seat_number" required placeholder="例如：05">
+            </div>
+            <div class="form-group">
+                <label for="name">姓名<span class="required-star">*</span></label>
+                <input type="text" id="name" required placeholder="請輸入您的真實姓名">
+            </div>
+            <div class="form-group">
+                <label for="gender">性別<span class="required-star">*</span></label>
+                <select id="gender" required>
+                    <option value="" style="background:#2d2d2d; color:#fff;">-- 請選擇性別 --</option>
+                    <option value="男" style="background:#2d2d2d; color:#fff;">男</option>
+                    <option value="女" style="background:#2d2d2d; color:#fff;">女</option>
+                    <option value="非現行二元性別/多元性別" style="background:#2d2d2d; color:#fff;">不願透露 / 其他</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="student_id">學號<span class="required-star">*</span></label>
+                <input type="text" id="student_id" required placeholder="請輸入 8 碼學生證號碼">
+            </div>
+            <div class="form-group">
+                <label for="email">電子郵件信箱<span class="required-star">*</span></label>
+                <input type="text" id="email" required placeholder="example@email.com">
+                <p class="note">系統將會自動發送確認信至此信箱</p>
+            </div>
+            <div class="form-group">
+                <label for="phone">聯絡電話（選填）</label>
+                <input type="text" id="phone" placeholder="例如：0912345678（選填）">
+            </div>
 
-    function selectOption(qIdx, oIdx) {
-        // 如果該題已經點選過，則不重複執行（鎖定答案）
-        if (userAnswers[qIdx] !== null) return;
+            <div class="section-title-banner">案件資料</div>
+            <div class="form-group">
+                <label for="category">案件項目<span class="required-star">*</span></label>
+                <select id="category" required>
+                    <option value="" style="background:#2d2d2d; color:#fff;">-- 請選擇分類 --</option>
+                    <option value="學生會政策及活動類" style="background:#2d2d2d; color:#fff;">1. 學生會政策及活動類</option>
+                    <option value="學生會政風類" style="background:#2d2d2d; color:#fff;">2. 學生會政風類</option>
+                    <option value="學校政策及活動類" style="background:#2d2d2d; color:#fff;">3. 學校政策及活動類</option>
+                    <option value="校園環境及衛生類" style="background:#2d2d2d; color:#fff;">4. 校園環境及衛生類（美化、毀損、髒亂）</option>
+                    <option value="其他意見" style="background:#2d2d2d; color:#fff;">5. 其他意見</option>
+                </select>
+            </div>
+            <div class="form-group"><label for="location">案件位置<span class="required-star">*</span></label><input type="text" id="location" required placeholder="請輸入案件位置，若無請填無"></div>
+            <div class="form-group">
+                <label for="subject">案件主旨<span class="required-star">*</span></label>
+                <input type="text" id="subject" required placeholder="請輸入案件主旨">
+                <div class="form-hint-red">最多200字</div>
+            </div>
+            <div class="form-group">
+                <label for="content">案件內容<span class="required-star">*</span></label>
+                <textarea id="content" required placeholder="請輸入案件內容"></textarea>
+                <div class="form-hint-red">請自行補充敘述，字數限二千字以內，如內容過長請改以附加檔案方式提供。</div>
+            </div>
 
-        userAnswers[qIdx] = oIdx;
-        const item = originalData[qIdx];
-        const resultBox = document.getElementById(`result-${qIdx}`);
-        const reasonBox = document.getElementById(`reason-${qIdx}`);
-        const navBtn = document.getElementById(`nav-${qIdx}`);
+            <div class="section-title-banner">附件上傳</div>
+            <div class="form-group">
+                <label for="drive_url">相關佐證附件連結（選填）</label>
+                <input type="text" id="drive_url" placeholder="https://drive.google.com/file/d/...（選填）">
+                <div class="drive-instruction-box">
+                    💡 <strong>雲端硬碟連結分享小提醒：</strong>
+                    <ul>
+                        <li>1. 請將檔案上傳至您的 Google Drive。</li>
+                        <li>2. 對檔案按右鍵選擇<strong>「共用」</strong> &gt; <strong>「複製連結」</strong>。</li>
+                        <li>3. 請務必確認將一般存取權改為<strong>「知道連結的任何人」</strong>喔！</li>
+                    </ul>
+                </div>
+            </div>
 
-        // 立即顯示解析框
-        resultBox.style.display = "block";
-        reasonBox.style.display = "block";
+            <div class="form-group">
+                <label for="captcha_input1">驗證碼<span class="required-star">*</span></label>
+                <input type="text" id="captcha_input1" required placeholder="請輸入下方驗證碼">
+                <div class="captcha-container">
+                    <canvas id="captchaCanvas1" class="captcha-canvas" width="100" height="38"></canvas>
+                    <button type="button" class="captcha-btn" id="refreshBtn1">⟳</button>
+                    <button type="button" class="captcha-btn" id="audioBtn1">🔊</button>
+                </div>
+            </div>
 
-        // 判斷正確或錯誤
-        if (oIdx === item.a) {
-            resultBox.className = "result-box correct-box";
-            resultBox.innerText = "⭐ 正確！";
-            navBtn.classList.add('correct'); // 導航鈕變綠色
-        } else {
-            resultBox.className = "result-box wrong-box";
-            resultBox.innerText = `❌ 錯誤。正確答案是：${item.o[item.a]}`;
-            navBtn.classList.add('wrong'); // 導航鈕變紅色
-            // 將點選錯誤的選項框加一點提示色
-            document.getElementById(`label-${qIdx}-${oIdx}`).style.borderColor = "#f44336";
-        }
+            <div class="btn-group">
+                <button type="button" class="btn btn-gray" onclick="goBackToHome('petitionForm')">回首頁</button>
+                <button type="submit" class="btn btn-blue">下一步</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="page-preview" class="page">
+        <p style="text-align: center; color: #aaa;">請確認您填寫的內容是否正確無誤：</p>
         
-        // 將正確答案的框框亮起來
-        document.getElementById(`label-${qIdx}-${item.a}`).style.borderColor = "#4caf50";
-        document.getElementById(`label-${qIdx}-${item.a}`).style.borderWidth = "3px";
+        <div class="section-title">一、陳情人基本資料</div>
+        <div class="form-group"><label>班級</label><div id="p-class" class="preview-value"></div></div>
+        <div class="form-group"><label>座號</label><div id="p-seat" class="preview-value"></div></div>
+        <div class="form-group"><label>姓名</label><div id="p-name" class="preview-value"></div></div>
+        <div class="form-group"><label>性別</label><div id="p-gender" class="preview-value"></div></div>
+        <div class="form-group"><label>學號</label><div id="p-student-id" class="preview-value"></div></div>
+        <div class="form-group"><label>電子郵件信箱</label><div id="p-email" class="preview-value"></div></div>
+        <div class="form-group"><label>聯絡電話</label><div id="p-phone" class="preview-value"></div></div>
 
-        // 鎖定該題所有選項不可再點選
-        const inputs = document.querySelectorAll(`#card-${qIdx} input`);
-        inputs.forEach(input => input.disabled = true);
+        <div class="section-title-banner">案件資料</div>
+        <div class="form-group"><label>案件項目</label><div id="p-category" class="preview-value"></div></div>
+        <div class="form-group"><label>案件位置</label><div id="p-location" class="preview-value"></div></div>
+        <div class="form-group"><label>案件主旨</label><div id="p-subject" class="preview-value"></div></div>
+        <div class="form-group"><label>案件內容</label><div id="p-content" class="preview-value preview-textarea"></div></div>
+
+        <div class="section-title-banner">附件上傳</div>
+        <div class="form-group"><label>相關佐證附件連結</label><div id="p-drive" class="preview-value"></div></div>
+
+        <div class="btn-group">
+            <button type="button" class="btn btn-gray" onclick="navigateTo('page-write')">我要修改內容</button>
+            <button type="button" class="btn btn-blue" onclick="finalSubmitForm()">已確認無誤</button>
+        </div>
+    </div>
+
+    <div id="page-success" class="page">
+        <div class="success-box">
+            您已確認送出陳情案件，本會會盡快請相關單位回覆您，感謝您的指教！
+            <div class="case-number-text">案件編號：<span id="case-id-placeholder"></span></div>
+        </div>
+        <button type="button" class="btn btn-blue btn-full" onclick="resetAndHome()">回到首頁</button>
+    </div>
+
+    <div id="page-search" class="page">
+        <div class="section-title">進度查詢驗證</div>
+        <form id="searchForm" onsubmit="handleSearchSubmit(event)">
+            <div class="form-group">
+                <label for="search_case_id">案件編號</label>
+                <input type="text" id="search_case_id" required placeholder="請輸入完整的案件編號">
+            </div>
+            <div class="form-group">
+                <label for="search_student_id">學號</label>
+                <input type="text" id="search_student_id" required placeholder="請輸入填寫人的學號">
+            </div>
+            <div class="form-group">
+                <label for="captcha_input2">驗證碼<span class="required-star">*</span></label>
+                <input type="text" id="captcha_input2" required placeholder="請輸入下方驗證碼">
+                <div class="captcha-container">
+                    <canvas id="captchaCanvas2" class="captcha-canvas" width="100" height="38"></canvas>
+                    <button type="button" class="captcha-btn" id="refreshBtn2">⟳</button>
+                    <button type="button" class="captcha-btn" id="audioBtn2">🔊</button>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-gray" onclick="goBackToHome('searchForm')">回首頁</button>
+                <button type="submit" class="btn btn-blue">確認查詢</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="page-status-result" class="page">
+        <div class="section-title">案件完整資料與處理進度</div>
+        
+        <table class="status-table">
+            <tr><th colspan="2" style="background-color: #111827; text-align: center; color: #fff;">一、陳情人基本資料</th></tr>
+            <tr><th>班級</th><td id="t-class"></td></tr>
+            <tr><th>座號</th><td id="t-seat"></td></tr>
+            <tr><th>姓名</th><td id="t-name"></td></tr>
+            <tr><th>性別</th><td id="t-gender"></td></tr>
+            <tr><th>學號</th><td id="t-student-id"></td></tr>
+            <tr><th>電子郵件信箱</th><td id="t-email"></td></tr>
+            <tr><th>聯絡電話</th><td id="t-phone"></td></tr>
+            
+            <tr><th colspan="2" style="background-color: #111827; text-align: center; color: #fff;">二、案件資料</th></tr>
+            <tr><th>案件項目</th><td id="t-category"></td></tr>
+            <tr><th>案件位置</th><td id="t-location"></td></tr>
+            <tr><th>案件主旨</th><td id="t-subject"></td></tr>
+            <tr><th>案件內容</th><td id="t-content"></td></tr>
+            <tr><th>相關佐證附件連結</th><td id="t-drive"></td></tr>
+            
+            <tr class="status-highlight-row"><th>案件進度</th><td id="t-status"></td></tr>
+            <tr class="status-highlight-row"><th>案件進度回覆</th><td id="t-reply" style="background-color: #1e293b;"></td></tr>
+        </table>
+        
+        <button type="button" class="btn btn-blue btn-full" onclick="goBackToHome('searchForm')">回到首頁</button>
+    </div>
+
+    <div id="page-admin-dashboard" class="page">
+        <div class="section-title" style="color: #fde047; border-left-color: #fde047;">⚙️ 學生會後台管理端</div>
+        <p style="color: #aaa; margin-bottom: 20px;">僅顯示「案件資料」部分（不透露陳情人個資），供學生會查核更動進度與回覆：</p>
+        
+        <div id="admin-cases-container">
+            <p style="color: #666; text-align: center; padding:20px;">正在連線雲端資料庫讀取資料中...</p>
+        </div>
+        
+        <button type="button" class="btn btn-gray btn-full" style="margin-top: 20px;" onclick="location.href=location.pathname">登出後台回到首頁</button>
+    </div>
+
+</div>
+
+<script>
+    const FIREBASE_DB_URL = "https://studentconcil-9e654-default-rtdb.asia-southeast1.firebasedatabase.app/";
+
+    let captcha1 = "";
+    let captcha2 = "";
+    let tempFormData = {};
+
+    function navigateTo(pageId) {
+        document.querySelectorAll('.page').forEach(page => page.style.display = 'none');
+        document.getElementById(pageId).style.display = 'block';
+        window.scrollTo(0, 0);
     }
 
-    function toggleMark(index) {
-        markedQuestions[index] = !markedQuestions[index];
-        const btn = document.getElementById(`mark-${index}`);
-        btn.classList.toggle('active');
-        updateNavStatus();
+    function goBackToHome(formId) {
+        document.getElementById(formId).reset();
+        refreshCaptcha1();
+        refreshCaptcha2();
+        navigateTo('page-home');
     }
 
-    function changePage(index) {
-        document.querySelector('.quiz-card.active').classList.remove('active');
-        document.getElementById(`card-${index}`).classList.add('active');
-        currentQuiz = index;
-        updateNavStatus();
+    function resetAndHome() {
+        document.getElementById('petitionForm').reset();
+        refreshCaptcha1();
+        navigateTo('page-home');
     }
 
-    function move(step) {
-        let target = currentQuiz + step;
-        if (target >= 0 && target < originalData.length) {
-            changePage(target);
+    // 驗證碼繪製
+    function drawCaptcha(canvasId, targetText) {
+        const canvas = document.getElementById(canvasId);
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < 4; i++) {
+            ctx.strokeStyle = `rgba(${Math.random()*100},${Math.random()*100},${Math.random()*100},0.3)`;
+            ctx.beginPath();
+            ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+            ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+            ctx.stroke();
+        }
+        ctx.font = "bold 22px Courier New";
+        const colors = ["#4e9a06", "#204a87", "#c4a000", "#5c3566"];
+        for (let i = 0; i < targetText.length; i++) {
+            ctx.fillStyle = colors[i % colors.length];
+            ctx.save();
+            ctx.translate(15 + (i * 20), 26 + (Math.random() * 4 - 2));
+            ctx.rotate((Math.random() * 20 - 10) * Math.PI / 180);
+            ctx.fillText(targetText[i], 0, 0);
+            ctx.restore();
         }
     }
 
-    function updateNavStatus() {
-        originalData.forEach((_, index) => {
-            const navBtn = document.getElementById(`nav-${index}`);
-            navBtn.classList.remove('current', 'marked');
-            if (index === currentQuiz) navBtn.classList.add('current');
-            if (markedQuestions[index]) navBtn.classList.add('marked');
-        });
+    function refreshCaptcha1() {
+        captcha1 = Math.floor(1000 + Math.random() * 9000).toString();
+        drawCaptcha('captchaCanvas1', captcha1);
     }
 
-    function handleFormSubmit() {
-        const unansweredCount = userAnswers.filter(a => a === null).length;
-        if (unansweredCount > 0) {
-            if (!confirm(`還有 ${unansweredCount} 題尚未回答，確定要結束練習並查看總分嗎？`)) return;
+    // 我要寫信：下一步
+    function handleFormSubmit(event) {
+        event.preventDefault();
+        
+        // 1. 驗證碼檢查
+        const userInput = document.getElementById('captcha_input1').value.trim();
+        if (userInput !== captcha1) {
+            alert("驗證碼輸入錯誤，請重新輸入！");
+            document.getElementById('captcha_input1').value = "";
+            refreshCaptcha1();
+            return;
         }
-        
-        let score = 0;
-        userAnswers.forEach((ans, idx) => {
-            if (ans === originalData[idx].a) score++;
-        });
 
-        const scorePercent = Math.round((score / originalData.length) * 100);
-        document.getElementById('quiz-container').style.display = 'none';
-        document.querySelector('.nav-btns').style.display = 'none';
-        document.getElementById('nav-bar').style.display = 'none';
-        
-        const summary = document.getElementById('summary-panel');
-        summary.style.display = 'block';
-        summary.innerHTML = `
-            <h1 style="color:#bb86fc;">測驗結束</h1>
-            <div style="font-size: 3rem; margin: 20px 0;">${scorePercent} 分</div>
-            <p style="font-size: 1.2rem;">正確題數：${score} / ${originalData.length}</p>
-            <button class="btn btn-next" onclick="location.reload()" style="margin-top:20px;">重新練習</button>
-        `;
+        // ==================== 修改：班級格式防呆（精簡為純 〇年〇班，不綁定中學後綴） ====================
+        const classNameInput = document.getElementById('class_name').value.trim();
+        const classRegEx = /^.+年.+班$/; 
+        if (!classRegEx.test(classNameInput)) {
+            alert("班級格式不符！請依照範例填寫，例如：七年忠班");
+            return;
+        }
+        // ===================================================================================
+
+        // 3. 座號格式檢查
+        const seatInput = document.getElementById('seat_number').value.trim();
+        if (!/^\d{2}$/.test(seatInput)) {
+            alert("座號格式不正確！請填寫兩位數字，例如：05");
+            return;
+        }
+
+        // 4. 學號格式檢查
+        const studentIdInput = document.getElementById('student_id').value.trim();
+        if (!/^\d{8}$/.test(studentIdInput)) {
+            alert("學號格式不正確！請輸入剛好 8 碼數字的學號。");
+            return;
+        }
+
+        // 5. 電子郵件格式檢查
+        const emailInput = document.getElementById('email').value.trim();
+        const emailRegEx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegEx.test(emailInput)) {
+            alert("電子郵件信箱格式不正確，請輸入有效的 Email 地址！");
+            return;
+        }
+
+        // 6. 聯絡電話格式檢查
+        const phoneInput = document.getElementById('phone').value.trim();
+        if (phoneInput !== "") {
+            const phoneRegEx = /^([\d-]{7,15})$/; 
+            if (!phoneRegEx.test(phoneInput)) {
+                alert("聯絡電話格式不正確，請重新確認！");
+                return;
+            }
+        }
+
+        tempFormData = {
+            className: classNameInput,
+            seatNumber: seatInput,
+            name: document.getElementById('name').value,
+            gender: document.getElementById('gender').value,
+            studentId: studentIdInput,
+            email: emailInput,
+            phone: phoneInput || "無",
+            category: document.getElementById('category').value,
+            location: document.getElementById('location').value,
+            subject: document.getElementById('subject').value,
+            content: document.getElementById('content').value,
+            driveUrl: document.getElementById('drive_url').value || "無",
+            status: "審核中", 
+            reply: "目前尚無回覆。" 
+        };
+
+        document.getElementById('p-class').textContent = tempFormData.className;
+        document.getElementById('p-seat').textContent = tempFormData.seatNumber;
+        document.getElementById('p-name').textContent = tempFormData.name;
+        document.getElementById('p-gender').textContent = tempFormData.gender;
+        document.getElementById('p-student-id').textContent = tempFormData.studentId;
+        document.getElementById('p-email').textContent = tempFormData.email;
+        document.getElementById('p-phone').textContent = tempFormData.phone;
+        document.getElementById('p-category').textContent = tempFormData.category;
+        document.getElementById('p-location').textContent = tempFormData.location;
+        document.getElementById('p-subject').textContent = tempFormData.subject;
+        document.getElementById('p-content').textContent = tempFormData.content;
+        document.getElementById('p-drive').textContent = tempFormData.driveUrl;
+
+        navigateTo('page-preview');
     }
 
-    window.onload = initQuiz;
+    // 已確認無誤
+    function finalSubmitForm() {
+        const now = new Date();
+        const minguoYear = now.getFullYear() - 1911;
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+
+        fetch(`${FIREBASE_DB_URL}petition_count.json`)
+            .then(res => res.json())
+            .then(countData => {
+                let currentCount = parseInt(countData || '0');
+                currentCount += 1;
+
+                const paddingCounter = String(currentCount).padStart(3, '0');
+                const finalCaseId = `${minguoYear}${month}${paddingCounter}`;
+
+                const updateCountPromise = fetch(`${FIREBASE_DB_URL}petition_count.json`, {
+                    method: 'PUT',
+                    body: JSON.stringify(currentCount)
+                });
+
+                const uploadCasePromise = fetch(`${FIREBASE_DB_URL}petitions/${finalCaseId}.json`, {
+                    method: 'PUT',
+                    body: JSON.stringify(tempFormData)
+                });
+
+                return Promise.all([updateCountPromise, uploadCasePromise]).then(() => finalCaseId);
+            })
+            .then(finalCaseId => {
+                document.getElementById('case-id-placeholder').textContent = finalCaseId;
+                document.getElementById('captcha_input1').value = ""; 
+                navigateTo('page-success');
+            })
+            .catch(err => {
+                console.error(err);
+                alert("雲端網路連線錯誤，請檢查資料庫權限或重試！");
+            });
+    }
+
+    function refreshCaptcha2() {
+        captcha2 = Math.floor(1000 + Math.random() * 9000).toString();
+        drawCaptcha('captchaCanvas2', captcha2);
+    }
+
+    // 案件進度查詢
+    function handleSearchSubmit(event) {
+        event.preventDefault();
+        
+        const userInput = document.getElementById('captcha_input2').value.trim();
+        if (userInput !== captcha2) {
+            alert("驗證碼輸入錯誤，請重新輸入！");
+            document.getElementById('captcha_input2').value = "";
+            refreshCaptcha2();
+            return;
+        }
+
+        const inputCaseId = document.getElementById('search_case_id').value.trim();
+        const inputStudentId = document.getElementById('search_student_id').value.trim();
+
+        fetch(`${FIREBASE_DB_URL}petitions/${inputCaseId}.json`)
+            .then(res => res.json())
+            .then(caseData => {
+                if (!caseData || caseData.studentId !== inputStudentId) {
+                    alert("查無此案件編號，或學號輸入不符，請重新確認！");
+                    refreshCaptcha2();
+                    return;
+                }
+
+                document.getElementById('t-class').textContent = caseData.className;
+                document.getElementById('t-seat').textContent = caseData.seatNumber;
+                document.getElementById('t-name').textContent = caseData.name;
+                document.getElementById('t-gender').textContent = caseData.gender;
+                document.getElementById('t-student-id').textContent = caseData.studentId;
+                document.getElementById('t-email').textContent = caseData.email;
+                document.getElementById('t-phone').textContent = caseData.phone;
+                document.getElementById('t-category').textContent = caseData.category;
+                document.getElementById('t-location').textContent = caseData.location;
+                document.getElementById('t-subject').textContent = caseData.subject;
+                document.getElementById('t-content').textContent = caseData.content;
+                document.getElementById('t-drive').textContent = caseData.driveUrl;
+                document.getElementById('t-status').textContent = caseData.status;
+                document.getElementById('t-reply').textContent = caseData.reply || "目前尚無回覆。";
+
+                navigateTo('page-status-result');
+            })
+            .catch(err => {
+                console.error(err);
+                alert("讀取雲端資料庫失敗，請確認網路連線。");
+            });
+    }
+
+    // 後台：修改與回覆
+    function updateCaseInAdmin(caseId) {
+        const newStatus = document.getElementById(`status-${caseId}`).value;
+        const newReply = document.getElementById(`reply-${caseId}`).value;
+
+        fetch(`${FIREBASE_DB_URL}petitions/${caseId}.json`, {
+            method: 'PATCH',
+            body: JSON.stringify({ 
+                status: newStatus,
+                reply: newReply
+            })
+        })
+        .then(res => res.json())
+        .then(() => {
+            alert(`雲端同步更新成功！\n進度：${newStatus}\n回覆內容已儲存。`);
+        })
+        .catch(err => {
+            console.error(err);
+            alert("同步更新雲端狀態失敗。");
+        });
+    }
+
+    // 後台：刪除
+    function deleteCaseInAdmin(caseId) {
+        const password = prompt("請輸入後台刪除權限密碼：");
+        if (password !== "0126") {
+            alert("密碼錯誤，拒絕刪除！");
+            return;
+        }
+
+        if (confirm(`確定要徹底刪除案件單號 ${caseId} 嗎？此操作無法復原。`)) {
+            fetch(`${FIREBASE_DB_URL}petitions/${caseId}.json`, {
+                method: 'DELETE'
+            })
+            .then(() => {
+                alert(`案件 ${caseId} 已成功從雲端資料庫抹除。`);
+                initAdminDashboard(); 
+            })
+            .catch(err => {
+                console.error(err);
+                alert("刪除案件失敗，請重試。");
+            });
+        }
+    }
+
+    // 後台案件渲染
+    function initAdminDashboard() {
+        const container = document.getElementById('admin-cases-container');
+        
+        fetch(`${FIREBASE_DB_URL}petitions.json`)
+            .then(res => res.json())
+            .then(dbData => {
+                if (!dbData) {
+                    container.innerHTML = '<p style="color: #666; text-align: center; padding:20px;">目前雲端資料庫中尚無任何陳情案件資料。</p>';
+                    return;
+                }
+
+                const caseIds = Object.keys(dbData).reverse(); 
+                let html = "";
+                
+                caseIds.forEach(id => {
+                    const caseData = dbData[id];
+                    html += `
+                        <div class="admin-case-card">
+                            <div class="admin-case-header">
+                                <div>單號：<span class="admin-case-id">${id}</span></div>
+                                <div>項目：${caseData.category}</div>
+                            </div>
+                            <div style="margin-bottom: 8px;"><strong>案件位置：</strong> ${caseData.location}</div>
+                            <div style="margin-bottom: 8px;"><strong>案件主旨：</strong> ${caseData.subject}</div>
+                            <div style="margin-bottom: 12px; background:#1a1a1a; padding:10px; border-radius:4px; font-size:13px; white-space:pre-wrap;">${caseData.content}</div>
+                            <div style="margin-bottom: 15px;"><strong>雲端附件：</strong> ${caseData.driveUrl !== "無" ? `<a href="${caseData.driveUrl}" target="_blank" style="color:#3b82f6;">點此打開連結</a>` : "無"}</div>
+                            
+                            <div class="form-group">
+                                <label style="color:#fde047; font-size:13px;">變更案件進度：</label>
+                                <select id="status-${id}" style="border-color:#555;">
+                                    <option value="審核中" ${caseData.status === '審核中' ? 'selected' : ''}>審核中</option>
+                                    <option value="處理中" ${caseData.status === '處理中' ? 'selected' : ''}>處理中</option>
+                                    <option value="已結案" ${caseData.status === '已結案' ? 'selected' : ''}>已結案</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="color:#fde047; font-size:13px;">案件進度回覆文字：</label>
+                                <textarea id="reply-${id}" style="height:70px; font-size:13px;" placeholder="請輸入回覆給學生的文字...">${caseData.reply || ""}</textarea>
+                            </div>
+
+                            <div class="btn-group" style="margin-top:15px; gap:10px;">
+                                <button type="button" class="btn btn-red" style="padding:8px; font-size:14px; flex:1;" onclick="deleteCaseInAdmin('${id}')">刪除本案件</button>
+                                <button type="button" class="btn btn-blue" style="padding:8px; font-size:14px; flex:2;" onclick="updateCaseInAdmin('${id}')">儲存此單變更</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            })
+            .catch(err => {
+                console.error(err);
+                container.innerHTML = '<p style="color: #ff6b6b; text-align: center; padding:20px;">讀取雲端資料庫出錯，請確認 Firebase Rules 是否已開啟。</p>';
+            });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        refreshCaptcha1();
+        refreshCaptcha2();
+        
+        document.getElementById('captchaCanvas1').addEventListener('click', refreshCaptcha1);
+        document.getElementById('refreshBtn1').addEventListener('click', refreshCaptcha1);
+        document.getElementById('audioBtn1').addEventListener('click', () => playAudio(captcha1));
+        
+        document.getElementById('captchaCanvas2').addEventListener('click', refreshCaptcha2);
+        document.getElementById('refreshBtn2').addEventListener('click', refreshCaptcha2);
+        document.getElementById('audioBtn2').addEventListener('click', () => playAudio(captcha2));
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('mode') === 'admin') {
+            const adminPassword = prompt("請輸入學生會後台管理密碼：");
+            if (adminPassword === "0126") {
+                initAdminDashboard();
+                navigateTo('page-admin-dashboard');
+            } else {
+                alert("密碼錯誤，拒絕登入後台！將回到公眾首頁。");
+                location.href = location.pathname; 
+            }
+        }
+    });
 </script>
 </body>
 </html>
