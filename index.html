@@ -315,6 +315,35 @@
             font-weight: normal;
         }
 
+        /* ==================== 新增需求：注意事項文字排版樣式 ==================== */
+        .instruction-content {
+            background-color: #252525;
+            border: 1px solid #3c3c3c;
+            padding: 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #dddddd;
+            max-height: 400px;
+            overflow-y: auto; /* 若文字過長支援外框內滾動 */
+        }
+        .instruction-content h3 {
+            color: #ffffff;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 16px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+        .instruction-subtitle {
+            font-weight: bold;
+            color: #3b82f6;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+        /* ======================================================================== */
+
         .page {
             display: none;
         }
@@ -328,14 +357,45 @@
 <div class="container">
     <h2>🏛️ 靜心高中學生會會長信箱 — 民意陳情系統</h2>
 
+    <!-- ==================== 頁面一：首頁 ==================== -->
     <div id="page-home" class="page">
         <p class="welcome-text">歡迎使用臺北市私立靜心高級中學學生會會長信箱（陳情系統），<br>您的意見是我們前進的動力！</p>
         <div class="btn-group-vertical">
-            <button type="button" class="btn btn-blue" onclick="switchPage('page-write')">我要寫信</button>
+            <!-- 修改點擊邏輯：不再直達寫信頁，改為先引導至全新新增的「注意事項頁面」 -->
+            <button type="button" class="btn btn-blue" onclick="switchPage('page-instructions')">我要寫信</button>
             <button type="button" class="btn btn-gray" onclick="switchPage('page-search')">案件進度查詢</button>
         </div>
     </div>
 
+    <!-- ==================== 全新新增頁面：我要寫信前的【注意事項頁面】 ==================== -->
+    <div id="page-instructions" class="page">
+        <div class="instruction-content">
+            <h3>【學生會陳情系統使用須知與注意事項】</h3>
+            
+            <div class="instruction-subtitle">一、 權責範圍與受理原則</div>
+            本系統專用於反映校園公共事務、學生權益受損及校務建議。凡涉及私人恩怨、不實指控、惡意中傷或違反中華民國法律、本校校規之言論，本會將不予受理，並提報相關單位調查。<br><br>
+            陳情內容應具體明確，並請儘可能提供時間、地點及相關事證（如照片、文件），以利後續查證與追蹤。
+            
+            <div class="instruction-subtitle">二、 真實姓名與個資保護</div>
+            為確保陳情案件之真實性與後續回報，陳情者須填寫真實姓名、學號及有效聯絡方式。未落實實名制之案件，本會得視情況不予處理。<br><br>
+            本會承諾嚴格遵守個人資料保護法之規定，除辦理陳情業務所需外，未經陳情者同意，絕不向任何第三方（含校方單位）洩漏陳情者之個人隱私資訊。
+            
+            <div class="instruction-subtitle">三、 處理時效與進度查詢</div>
+            案件送出後，系統將自動編號。陳情者可憑該編號於系統後台查詢最新處理進度。<br>
+            一般陳情案件之初步研擬與分案時間為 3 至 5 個工作天（不含例假日與國定假日）。若案情複雜需與校方召開協調會者，將另行通知預估處理時程。
+            
+            <div class="instruction-subtitle">四、 救濟與申訴</div>
+            陳情者若對案件處理結果有異議，得於收到結案通知後 7 日內，檢具新事證向學生會學生權益部（或相關救濟單位）提出申復。
+        </div>
+
+        <div class="btn-group">
+            <button type="button" class="btn btn-gray" style="flex: 1;" onclick="switchPage('page-home')">不同意並回首頁</button>
+            <button type="button" class="btn btn-blue" style="flex: 1.5;" onclick="switchPage('page-write')">我已閱讀並同意</button>
+        </div>
+    </div>
+    <!-- =================================================================================== -->
+
+    <!-- ==================== 頁面二：我要寫信 ==================== -->
     <div id="page-write" class="page">
         <p style="text-align: center; color: #aaa;">請填寫以下資訊：</p>
         <form id="petitionForm" onsubmit="handleFormSubmit(event)">
@@ -369,7 +429,7 @@
             <div class="form-group">
                 <label for="email">電子郵件信箱<span class="required-star">*</span></label>
                 <input type="text" id="email" required placeholder="example@email.com">
-                </div>
+            </div>
             <div class="form-group">
                 <label for="phone">聯絡電話（選填）</label>
                 <input type="text" id="phone" placeholder="例如：0912345678（選填）">
@@ -381,9 +441,9 @@
                 <select id="category" required>
                     <option value="" style="background:#2d2d2d; color:#fff;">-- 請選擇分類 --</option>
                     <option value="學生會政策及活動類" style="background:#2d2d2d; color:#fff;">1. 學生會政策及活動類</option>
-                    <option value="學生會政風類" style="background:#2d2d2d; color:#fff;">2. 學生會政風類</option>
+                    <option value="學生會政风類" style="background:#2d2d2d; color:#fff;">2. 學生會政風類</option>
                     <option value="學校政策及活動類" style="background:#2d2d2d; color:#fff;">3. 學校政策及活動類</option>
-                    <option value="校園環境及衛生類" style="background:#2d2d2d; color:#fff;">4.校園環境及衛生類（美化、毀損、髒亂）</option>
+                    <option value="校園環境及衛生類" style="background:#2d2d2d; color:#fff;">4. 校園環境及衛生類（美化、毀損、髒亂）</option>
                     <option value="其他意見" style="background:#2d2d2d; color:#fff;">5. 其他意見</option>
                 </select>
             </div>
@@ -430,6 +490,7 @@
         </form>
     </div>
 
+    <!-- ==================== 頁面三：答案列出與確認頁 ==================== -->
     <div id="page-preview" class="page">
         <p style="text-align: center; color: #aaa;">請確認您填寫的內容是否正確無誤：</p>
         
@@ -457,6 +518,7 @@
         </div>
     </div>
 
+    <!-- ==================== 頁面四：感謝送出頁 ==================== -->
     <div id="page-success" class="page">
         <div class="success-box">
             您已確認送出陳情案件，本會會盡快請相關單位回覆您，感謝您的指教！
@@ -465,6 +527,7 @@
         <button type="button" class="btn btn-blue btn-full" onclick="resetAndHome()">回到首頁</button>
     </div>
 
+    <!-- ==================== 頁面五：案件進度查詢輸入頁 ==================== -->
     <div id="page-search" class="page">
         <div class="section-title">進度查詢驗證</div>
         <form id="searchForm" onsubmit="handleSearchSubmit(event)">
@@ -492,6 +555,7 @@
         </form>
     </div>
 
+    <!-- ==================== 頁面六：案件進度查詢結果顯示頁 ==================== -->
     <div id="page-status-result" class="page">
         <div class="section-header-flex">
             <div class="section-title" style="margin-top:0; margin-bottom:0;">案件完整資料與處理進度</div>
@@ -522,6 +586,7 @@
         <button type="button" class="btn btn-blue btn-full" onclick="exitResultPage()">回到首頁</button>
     </div>
 
+    <!-- ==================== 頁面七：?mode=admin 後台端管理頁面 ==================== -->
     <div id="page-admin-dashboard" class="page">
         <div class="section-header-flex">
             <div class="section-title" style="color: #fde047; border-left-color: #fde047; margin-top:0; margin-bottom:0;">⚙️ 學生會後台管理端</div>
@@ -538,6 +603,7 @@
 
 </div>
 
+<!-- ==================== 核心邏輯 JavaScript ==================== -->
 <script>
     const FIREBASE_DB_URL = "https://studentconcil-9e654-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
@@ -548,12 +614,14 @@
     let currentActiveSearchStudent = "";
     let isDeletionAlertActive = false;
 
+    // 1. 修改/優化 Hash 頁面切換機制，新增注意事項頁面（#instructions）的對應鎖定
     function switchPage(pageId) {
         document.querySelectorAll('.page').forEach(page => page.style.display = 'none');
         const targetPage = document.getElementById(pageId);
         if (targetPage) targetPage.style.display = 'block';
         
         if (pageId === 'page-home') window.location.hash = "";
+        else if (pageId === 'page-instructions') window.location.hash = "instructions"; // 新增
         else if (pageId === 'page-write') window.location.hash = "write";
         else if (pageId === 'page-search') window.location.hash = "search";
         else if (pageId === 'page-preview') window.location.hash = "preview";
@@ -691,7 +759,6 @@
             }
         }
 
-        // ==================== 修改：組裝暫存資料時自動加入當前的送出日期時間 ====================
         const nowTime = new Date();
         const formattedDate = `${nowTime.getFullYear()}-${String(nowTime.getMonth() + 1).padStart(2, '0')}-${String(nowTime.getDate()).padStart(2, '0')} ${String(nowTime.getHours()).padStart(2, '0')}:${String(nowTime.getMinutes()).padStart(2, '0')}:${String(nowTime.getSeconds()).padStart(2, '0')}`;
 
@@ -710,9 +777,8 @@
             driveUrl: document.getElementById('drive_url').value || "無",
             status: "審核中", 
             reply: "目前尚無回覆。",
-            submitDate: formattedDate // 新增核心屬性：自動記錄日期時間
+            submitDate: formattedDate 
         };
-        // ===================================================================================
 
         document.getElementById('p-class').textContent = tempFormData.className;
         document.getElementById('p-seat').textContent = tempFormData.seatNumber;
@@ -834,7 +900,7 @@
         }
     }
 
-    // 後台：儲存
+    // 後台端更新變更
     function updateCaseInAdmin(caseId) {
         const newStatus = document.getElementById(`status-${caseId}`).value;
         const newReply = document.getElementById(`reply-${caseId}`).value;
@@ -856,7 +922,7 @@
         });
     }
 
-    // 後台：刪除
+    // 後台端刪除
     function deleteCaseInAdmin(caseId) {
         const password = prompt("請輸入後台刪除權限密碼：");
         if (password !== "0126") {
@@ -879,7 +945,7 @@
         }
     }
 
-    // 后台卡片渲染（已修改：在陳情人基本資料欄內新增顯示送出日期）
+    // 後台端卡片渲染
     function initAdminDashboard() {
         const container = document.getElementById('admin-cases-container');
         
@@ -914,7 +980,7 @@
                                 <div class="admin-sub-section" style="color: #fde047; font-weight: bold; margin-top: 4px; border-top: 1px dashed #3d4a66; padding-top: 4px;">
                                     <strong>填寫日期：</strong> <span>${caseData.submitDate || "無歷史紀錄"}</span>
                                 </div>
-                                </div>
+                            </div>
 
                             <div style="margin-bottom: 8px;"><strong>案件位置：</strong> ${caseData.location}</div>
                             <div style="margin-bottom: 8px;"><strong>案件主旨：</strong> ${caseData.subject}</div>
@@ -1010,9 +1076,12 @@
                 window.location.href = window.location.pathname; 
             }
         } else {
-            if (currentHash === "write") {
+            // 2. 修改：配合全新路由，解構重新整理後的鎖定行為
+            if (currentHash === "instructions") {
+                switchPage('page-instructions'); // 留在注意事項頁
+            } else if (currentHash === "write") {
                 document.getElementById('petitionForm').reset();
-                switchPage('page-write');
+                switchPage('page-write'); // 留在填寫頁且清空
             } else if (currentHash === "result" && currentActiveSearchId && currentActiveSearchStudent) {
                 fetch(`${FIREBASE_DB_URL}petitions/${currentActiveSearchId}.json`)
                     .then(res => res.json())
