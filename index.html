@@ -369,8 +369,7 @@
             <div class="form-group">
                 <label for="email">電子郵件信箱<span class="required-star">*</span></label>
                 <input type="text" id="email" required placeholder="example@email.com">
-                <p class="note">系統將會自動發送確認信至此信箱</p>
-            </div>
+                </div>
             <div class="form-group">
                 <label for="phone">聯絡電話（選填）</label>
                 <input type="text" id="phone" placeholder="例如：0912345678（選填）">
@@ -384,7 +383,7 @@
                     <option value="學生會政策及活動類" style="background:#2d2d2d; color:#fff;">1. 學生會政策及活動類</option>
                     <option value="學生會政風類" style="background:#2d2d2d; color:#fff;">2. 學生會政風類</option>
                     <option value="學校政策及活動類" style="background:#2d2d2d; color:#fff;">3. 學校政策及活動類</option>
-                    <option value="校園環境及衛生類" style="background:#2d2d2d; color:#fff;">4. 校園環境及衛生類（美化、毀損、髒亂）</option>
+                    <option value="校園環境及衛生類" style="background:#2d2d2d; color:#fff;">4.校園環境及衛生類（美化、毀損、髒亂）</option>
                     <option value="其他意見" style="background:#2d2d2d; color:#fff;">5. 其他意見</option>
                 </select>
             </div>
@@ -547,8 +546,6 @@
     let tempFormData = {};
     let currentActiveSearchId = "";
     let currentActiveSearchStudent = "";
-
-    // 防止在彈窗警告時發生重複觸發的旗標鎖
     let isDeletionAlertActive = false;
 
     function switchPage(pageId) {
@@ -694,6 +691,10 @@
             }
         }
 
+        // ==================== 修改：組裝暫存資料時自動加入當前的送出日期時間 ====================
+        const nowTime = new Date();
+        const formattedDate = `${nowTime.getFullYear()}-${String(nowTime.getMonth() + 1).padStart(2, '0')}-${String(nowTime.getDate()).padStart(2, '0')} ${String(nowTime.getHours()).padStart(2, '0')}:${String(nowTime.getMinutes()).padStart(2, '0')}:${String(nowTime.getSeconds()).padStart(2, '0')}`;
+
         tempFormData = {
             className: classNameInput,
             seatNumber: seatInput,
@@ -708,8 +709,10 @@
             content: document.getElementById('content').value,
             driveUrl: document.getElementById('drive_url').value || "無",
             status: "審核中", 
-            reply: "目前尚無回覆。" 
+            reply: "目前尚無回覆。",
+            submitDate: formattedDate // 新增核心屬性：自動記錄日期時間
         };
+        // ===================================================================================
 
         document.getElementById('p-class').textContent = tempFormData.className;
         document.getElementById('p-seat').textContent = tempFormData.seatNumber;
@@ -876,7 +879,7 @@
         }
     }
 
-    // 後台卡片渲染
+    // 后台卡片渲染（已修改：在陳情人基本資料欄內新增顯示送出日期）
     function initAdminDashboard() {
         const container = document.getElementById('admin-cases-container');
         
@@ -908,7 +911,10 @@
                                 <div class="admin-sub-section"><strong>學號：</strong> <span>${caseData.studentId}</span></div>
                                 <div class="admin-sub-section"><strong>信箱：</strong> <span>${caseData.email}</span></div>
                                 <div class="admin-sub-section"><strong>電話：</strong> <span>${caseData.phone}</span></div>
-                            </div>
+                                <div class="admin-sub-section" style="color: #fde047; font-weight: bold; margin-top: 4px; border-top: 1px dashed #3d4a66; padding-top: 4px;">
+                                    <strong>填寫日期：</strong> <span>${caseData.submitDate || "無歷史紀錄"}</span>
+                                </div>
+                                </div>
 
                             <div style="margin-bottom: 8px;"><strong>案件位置：</strong> ${caseData.location}</div>
                             <div style="margin-bottom: 8px;"><strong>案件主旨：</strong> ${caseData.subject}</div>
@@ -944,69 +950,44 @@
             });
     }
 
-    // ==================== 修改/新增需求：即時監聽案件刪除並執行強制踢回 ====================
-    function startRealtimeFirebaseListener() {
-        const eventSource = new EventSource(`${FIREBASE_DB_URL}petitions.json`);
-        
-        eventSource.addEventListener('put', function(event) {
-            const path = JSON.parse(event.data).path;
-            const data = JSON.parse(event.data).data;
-
-            // 檢查是否處於「使用者進度查詢結果頁面」
-            if (window.location.hash === "#result" && currentActiveSearchId) {
-                // 1. 如果整棵資料樹被刪光、或當前監聽的特定單號節點路徑返回為空 (null)
-                if (path === "/" && data === null) {
-                    executeForcedKickout();
-                    return;
-                }
-                if (path === `/${currentActiveSearchId}` && data === null) {
-                    executeForcedKickout();
-                    return;
-                }
-            }
-
-            // 其餘一般資料庫的正常進度更新，照常重新讀取渲染
-            if (currentActiveSearchId && currentActiveSearchStudent) {
-                fetchAndRenderSingleCase(currentActiveSearchId, currentActiveSearchStudent, false);
-            }
-            if (window.location.hash === "#admin") {
-                initAdminDashboard();
-            }
-        });
-        
-        eventSource.addEventListener('patch', function(event) {
-            if (currentActiveSearchId && currentActiveSearchStudent) {
-                fetchAndRenderSingleCase(currentActiveSearchId, currentActiveSearchStudent, false);
-            }
-            if (window.location.hash === "#admin") {
-                initAdminDashboard();
-            }
-        });
-    }
-
-    // 抽出：核心強制被踢回機制
+    // 強制被踢回機制
     function executeForcedKickout() {
-        if (isDeletionAlertActive) return; // 鎖定防重複
+        if (isDeletionAlertActive) return; 
         isDeletionAlertActive = true;
-
         alert("此案件已遭後台刪除，若有疑慮請聯繫本會");
-
-        // 1. 完全抹除工作階段中的單號與學號記憶（已輸入內容清除）
         currentActiveSearchId = "";
         currentActiveSearchStudent = "";
         sessionStorage.removeItem("active_search_id");
         sessionStorage.removeItem("active_search_student");
-
-        // 2. 清除前台查詢表單內已填寫的所有殘留內文
         document.getElementById('searchForm').reset();
         refreshCaptcha2();
-
         isDeletionAlertActive = false;
-
-        // 3. 強制將頁面跳回「案件編號輸入頁面」
         switchPage('page-search');
     }
-    // ===================================================================================
+
+    // Firebase 即時聯動監聽
+    function startRealtimeFirebaseListener() {
+        const eventSource = new EventSource(`${FIREBASE_DB_URL}petitions.json`);
+        eventSource.addEventListener('put', function(event) {
+            const path = JSON.parse(event.data).path;
+            const data = JSON.parse(event.data).data;
+
+            if (window.location.hash === "#result" && currentActiveSearchId) {
+                if (path === "/" && data === null) { executeForcedKickout(); return; }
+                if (path === `/${currentActiveSearchId}` && data === null) { executeForcedKickout(); return; }
+            }
+            if (currentActiveSearchId && currentActiveSearchStudent) {
+                fetchAndRenderSingleCase(currentActiveSearchId, currentActiveSearchStudent, false);
+            }
+            if (window.location.hash === "#admin") { initAdminDashboard(); }
+        });
+        eventSource.addEventListener('patch', function(event) {
+            if (currentActiveSearchId && currentActiveSearchStudent) {
+                fetchAndRenderSingleCase(currentActiveSearchId, currentActiveSearchStudent, false);
+            }
+            if (window.location.hash === "#admin") { initAdminDashboard(); }
+        });
+    }
 
     window.addEventListener('DOMContentLoaded', () => {
         refreshCaptcha1();
@@ -1033,7 +1014,6 @@
                 document.getElementById('petitionForm').reset();
                 switchPage('page-write');
             } else if (currentHash === "result" && currentActiveSearchId && currentActiveSearchStudent) {
-                // 重整時再次驗證該單是否仍存在於雲端，若已不在則會由監聽器處理或直接踢回
                 fetch(`${FIREBASE_DB_URL}petitions/${currentActiveSearchId}.json`)
                     .then(res => res.json())
                     .then(caseData => {
