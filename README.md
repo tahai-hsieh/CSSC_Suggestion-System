@@ -1,1 +1,1 @@
-# CSSC_Sugestions-System
+# CSSC_Suggestion-System
