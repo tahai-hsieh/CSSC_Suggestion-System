@@ -41,7 +41,6 @@
             margin-bottom: 15px;
             font-weight: bold;
         }
-        /* 後台專用與查詢結果頁面專用新增：帶有重整按鈕的標題列 */
         .section-header-flex {
             display: flex;
             justify-content: space-between;
@@ -139,7 +138,6 @@
             background-color: #666666;
         }
 
-        /* 頂部或行內獨立重整小圖示按鈕樣式 */
         .inline-refresh-btn {
             background: #2563eb;
             color: white;
@@ -305,6 +303,16 @@
         .admin-case-id {
             font-weight: bold;
             color: #3b82f6;
+        }
+        .admin-sub-section {
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 6px;
+            padding-left: 4px;
+        }
+        .admin-sub-section span {
+            color: #ffffff;
+            font-weight: normal;
         }
 
         .page {
@@ -488,7 +496,7 @@
     <div id="page-status-result" class="page">
         <div class="section-header-flex">
             <div class="section-title" style="margin-top:0; margin-bottom:0;">案件完整資料與處理進度</div>
-            <button type="button" class="inline-refresh-btn" onclick="triggerManualDataFetch()" title="手動更新最新資料">🔄 更新進度</button>
+            <button type="button" class="inline-refresh-btn" onclick="triggerManualDataFetch()">🔄 更新進度</button>
         </div>
         
         <table class="status-table">
@@ -518,9 +526,9 @@
     <div id="page-admin-dashboard" class="page">
         <div class="section-header-flex">
             <div class="section-title" style="color: #fde047; border-left-color: #fde047; margin-top:0; margin-bottom:0;">⚙️ 學生會後台管理端</div>
-            <button type="button" class="inline-refresh-btn" style="background:#555;" onclick="initAdminDashboard()" title="重新讀取雲端資料">🔄 重新整理資料</button>
+            <button type="button" class="inline-refresh-btn" style="background:#555;" onclick="initAdminDashboard()">🔄 重新整理資料</button>
         </div>
-        <p style="color: #aaa; margin-bottom: 20px;">僅顯示「案件資料」部分（不透露陳情人個資），供學生會查核更動進度與回覆：</p>
+        <p style="color: #aaa; margin-bottom: 20px;">已完整顯示「陳情人基本資料」與「案件資料」部分，供學生會查核更動進度與回覆：</p>
         
         <div id="admin-cases-container">
             <p style="color: #666; text-align: center; padding:20px;">正在連線雲端資料庫讀取資料中...</p>
@@ -537,18 +545,17 @@
     let captcha1 = "";
     let captcha2 = "";
     let tempFormData = {};
-    
-    // 用來儲存當前查詢成功鎖定的單號與學號，供重整與手動重整時重複對比讀取
     let currentActiveSearchId = "";
     let currentActiveSearchStudent = "";
 
-    // 1. 修改：支援網址錨點 (Hash Router) 的頁面切換機制，確保重整不跳頁
+    // 防止在彈窗警告時發生重複觸發的旗標鎖
+    let isDeletionAlertActive = false;
+
     function switchPage(pageId) {
         document.querySelectorAll('.page').forEach(page => page.style.display = 'none');
         const targetPage = document.getElementById(pageId);
         if (targetPage) targetPage.style.display = 'block';
         
-        // 根據不同分頁將暗號寫入網址 Hash 中
         if (pageId === 'page-home') window.location.hash = "";
         else if (pageId === 'page-write') window.location.hash = "write";
         else if (pageId === 'page-search') window.location.hash = "search";
@@ -560,7 +567,6 @@
         window.scrollTo(0, 0);
     }
 
-    // 舊導向函式改綁新機制
     function navigateTo(pageId) { switchPage(pageId); }
 
     function goBackToHome(formId) {
@@ -591,7 +597,6 @@
         location.href = location.pathname;
     }
 
-    // 驗證碼渲染
     function drawCaptcha(canvasId, targetText) {
         const canvas = document.getElementById(canvasId);
         if(!canvas) return;
@@ -641,7 +646,6 @@
     function handleFormSubmit(event) {
         event.preventDefault();
         
-        // 1. 驗證碼檢查
         const userInput = document.getElementById('captcha_input1').value.trim();
         if (userInput !== captcha1) {
             alert("驗證碼輸入錯誤，請重新輸入！");
@@ -650,17 +654,14 @@
             return;
         }
 
-        // 2. 班級格式檢查：修剪為純〇年〇班
         const classNameInput = document.getElementById('class_name').value.trim();
         const classRegEx = /^.+年.+班$/; 
         if (!classRegEx.test(classNameInput)) {
             alert("班級格式不符！請依照範例填寫，例如：七年忠班");
-            // ==================== 修改：格式錯誤跳提示後隨即更新驗證碼 ====================
             refreshCaptcha1();
             return;
         }
 
-        // 3. 座號格式檢查
         const seatInput = document.getElementById('seat_number').value.trim();
         if (!/^\d{2}$/.test(seatInput)) {
             alert("座號格式不正確！請填寫兩位數字，例如：05");
@@ -668,7 +669,6 @@
             return;
         }
 
-        // 4. 學號格式檢查
         const studentIdInput = document.getElementById('student_id').value.trim();
         if (!/^\d{8}$/.test(studentIdInput)) {
             alert("學號格式不正確！請輸入剛好 8 碼數字的學號。");
@@ -676,7 +676,6 @@
             return;
         }
 
-        // 5. 電子郵件格式檢查
         const emailInput = document.getElementById('email').value.trim();
         const emailRegEx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegEx.test(emailInput)) {
@@ -685,7 +684,6 @@
             return;
         }
 
-        // 6. 聯絡電話格式檢查
         const phoneInput = document.getElementById('phone').value.trim();
         if (phoneInput !== "") {
             const phoneRegEx = /^([\d-]{7,15})$/; 
@@ -693,7 +691,6 @@
                 alert("聯絡電話格式不正確，請重新確認！");
                 refreshCaptcha1();
                 return;
-                // =========================================================================
             }
         }
 
@@ -783,7 +780,6 @@
         const inputCaseId = document.getElementById('search_case_id').value.trim();
         const inputStudentId = document.getElementById('search_student_id').value.trim();
 
-        // 鎖定全域與會話記憶，供重新整理與手動更新使用
         currentActiveSearchId = inputCaseId;
         currentActiveSearchStudent = inputStudentId;
         sessionStorage.setItem("active_search_id", inputCaseId);
@@ -792,7 +788,6 @@
         fetchAndRenderSingleCase(inputCaseId, inputStudentId, true);
     }
 
-    // 抽出：單筆查詢資料渲染核心（含手動與即時更新）
     function fetchAndRenderSingleCase(caseId, studentId, targetNavigate = false) {
         if (!caseId || !studentId) return;
 
@@ -827,18 +822,16 @@
             .catch(err => console.error("讀取失敗:", err));
     }
 
-    // ==================== 修改需求：手動「重整」按鈕觸發函式 ====================
     function triggerManualDataFetch() {
         if (currentActiveSearchId && currentActiveSearchStudent) {
             fetchAndRenderSingleCase(currentActiveSearchId, currentActiveSearchStudent, false);
-            // 輕微跳窗示意手動重新整理成功
             const originalBtn = document.querySelector(".inline-refresh-btn");
             originalBtn.textContent = "✅ 已更新";
             setTimeout(() => { originalBtn.textContent = "🔄 更新進度"; }, 1000);
         }
     }
 
-    // 後台：更新修改與回覆
+    // 後台：儲存
     function updateCaseInAdmin(caseId) {
         const newStatus = document.getElementById(`status-${caseId}`).value;
         const newReply = document.getElementById(`reply-${caseId}`).value;
@@ -852,7 +845,6 @@
         })
         .then(res => res.json())
         .then(() => {
-            // 💡 亮點提示：此處無須額外動作，前台因開啟了監聽機制或手動重整，資料早已同步
             alert(`雲端同步更新成功！\n進度：${newStatus}\n回覆內容已儲存。`);
         })
         .catch(err => {
@@ -884,7 +876,7 @@
         }
     }
 
-    // 後台數據拉取
+    // 後台卡片渲染
     function initAdminDashboard() {
         const container = document.getElementById('admin-cases-container');
         
@@ -907,6 +899,17 @@
                                 <div>單號：<span class="admin-case-id">${id}</span></div>
                                 <div>項目：${caseData.category}</div>
                             </div>
+                            
+                            <div style="background: #1a2333; padding: 10px; border-radius: 4px; margin-bottom: 12px; border: 1px solid #2d3748;">
+                                <div style="color: #3b82f6; font-weight: bold; font-size: 13px; margin-bottom: 6px;">📋 陳情人基本資料：</div>
+                                <div class="admin-sub-section"><strong>姓名：</strong> <span>${caseData.name}</span> (${caseData.gender})</div>
+                                <div class="admin-sub-section"><strong>班級：</strong> <span>${caseData.className}</span></div>
+                                <div class="admin-sub-section"><strong>座號：</strong> <span>${caseData.seatNumber}</span></div>
+                                <div class="admin-sub-section"><strong>學號：</strong> <span>${caseData.studentId}</span></div>
+                                <div class="admin-sub-section"><strong>信箱：</strong> <span>${caseData.email}</span></div>
+                                <div class="admin-sub-section"><strong>電話：</strong> <span>${caseData.phone}</span></div>
+                            </div>
+
                             <div style="margin-bottom: 8px;"><strong>案件位置：</strong> ${caseData.location}</div>
                             <div style="margin-bottom: 8px;"><strong>案件主旨：</strong> ${caseData.subject}</div>
                             <div style="margin-bottom: 12px; background:#1a1a1a; padding:10px; border-radius:4px; font-size:13px; white-space:pre-wrap;">${caseData.content}</div>
@@ -941,17 +944,31 @@
             });
     }
 
-    // ==================== 修改需求：Firebase 雲端即時監聽（免重整秒更新） ====================
+    // ==================== 修改/新增需求：即時監聽案件刪除並執行強制踢回 ====================
     function startRealtimeFirebaseListener() {
-        // 利用 SSE 長連線訂閱 Firebase 案件樹的所有微幅變動
         const eventSource = new EventSource(`${FIREBASE_DB_URL}petitions.json`);
         
         eventSource.addEventListener('put', function(event) {
-            // 只要雲端有任何人或後台更動進度，立刻觸發前台表格重繪（不需重整）
+            const path = JSON.parse(event.data).path;
+            const data = JSON.parse(event.data).data;
+
+            // 檢查是否處於「使用者進度查詢結果頁面」
+            if (window.location.hash === "#result" && currentActiveSearchId) {
+                // 1. 如果整棵資料樹被刪光、或當前監聽的特定單號節點路徑返回為空 (null)
+                if (path === "/" && data === null) {
+                    executeForcedKickout();
+                    return;
+                }
+                if (path === `/${currentActiveSearchId}` && data === null) {
+                    executeForcedKickout();
+                    return;
+                }
+            }
+
+            // 其餘一般資料庫的正常進度更新，照常重新讀取渲染
             if (currentActiveSearchId && currentActiveSearchStudent) {
                 fetchAndRenderSingleCase(currentActiveSearchId, currentActiveSearchStudent, false);
             }
-            // 同時如果後台管理頁面處於開啟狀態，也一併即時重繪
             if (window.location.hash === "#admin") {
                 initAdminDashboard();
             }
@@ -967,19 +984,38 @@
         });
     }
 
-    // 4. 初始化路由器與會話狀態解析
+    // 抽出：核心強制被踢回機制
+    function executeForcedKickout() {
+        if (isDeletionAlertActive) return; // 鎖定防重複
+        isDeletionAlertActive = true;
+
+        alert("此案件已遭後台刪除，若有疑慮請聯繫本會");
+
+        // 1. 完全抹除工作階段中的單號與學號記憶（已輸入內容清除）
+        currentActiveSearchId = "";
+        currentActiveSearchStudent = "";
+        sessionStorage.removeItem("active_search_id");
+        sessionStorage.removeItem("active_search_student");
+
+        // 2. 清除前台查詢表單內已填寫的所有殘留內文
+        document.getElementById('searchForm').reset();
+        refreshCaptcha2();
+
+        isDeletionAlertActive = false;
+
+        // 3. 強制將頁面跳回「案件編號輸入頁面」
+        switchPage('page-search');
+    }
+    // ===================================================================================
+
     window.addEventListener('DOMContentLoaded', () => {
         refreshCaptcha1();
         refreshCaptcha2();
-        
-        // 啟動雲端即時聯動監聽
         startRealtimeFirebaseListener();
         
-        // 恢復會話暫存變數（供重整保留內容頁使用）
         currentActiveSearchId = sessionStorage.getItem("active_search_id") || "";
         currentActiveSearchStudent = sessionStorage.getItem("active_search_student") || "";
 
-        // 解析當前網址 Hash，決定重新整理後留在哪一頁
         const currentHash = window.location.hash.replace("#", "");
         const urlParams = new URLSearchParams(window.location.search);
         
@@ -993,22 +1029,26 @@
                 window.location.href = window.location.pathname; 
             }
         } else {
-            // 根據網址暗號留在原地
             if (currentHash === "write") {
-                // ==================== 修改：填寫頁重整會留在此頁，但表單欄位內容全部清除 ====================
                 document.getElementById('petitionForm').reset();
                 switchPage('page-write');
             } else if (currentHash === "result" && currentActiveSearchId && currentActiveSearchStudent) {
-                // ==================== 修改：進度結果頁重整，不會跳回輸入編號頁，直接留在此頁 ====================
-                fetchAndRenderSingleCase(currentActiveSearchId, currentActiveSearchStudent, false);
-                switchPage('page-status-result');
+                // 重整時再次驗證該單是否仍存在於雲端，若已不在則會由監聽器處理或直接踢回
+                fetch(`${FIREBASE_DB_URL}petitions/${currentActiveSearchId}.json`)
+                    .then(res => res.json())
+                    .then(caseData => {
+                        if (!caseData) {
+                            executeForcedKickout();
+                        } else {
+                            fetchAndRenderSingleCase(currentActiveSearchId, currentActiveSearchStudent, false);
+                            switchPage('page-status-result');
+                        }
+                    });
             } else {
-                // 其餘或空雜湊預設回首頁
                 switchPage('page-home');
             }
         }
         
-        // 驗證碼點擊事件綁定
         document.getElementById('captchaCanvas1').addEventListener('click', refreshCaptcha1);
         document.getElementById('refreshBtn1').addEventListener('click', refreshCaptcha1);
         document.getElementById('audioBtn1').addEventListener('click', () => playAudio(captcha1));
