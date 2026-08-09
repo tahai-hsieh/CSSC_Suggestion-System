@@ -598,7 +598,10 @@
     <div id="page-admin-dashboard" class="page">
         <div class="section-header-flex">
             <div class="section-title" style="color: #fde047; border-left-color: #fde047; margin-top:0; margin-bottom:0;">⚙️ 學生會後台管理端</div>
-            <button type="button" class="inline-refresh-btn" style="background:#555;" onclick="initAdminDashboard()">🔄 重新整理資料</button>
+            <div style="display: flex; gap: 8px;">
+                <button type="button" class="inline-refresh-btn" style="background:#dc2626;" onclick="clearAllDataInAdmin()">⚠️ 一鍵清除所有資料</button>
+                <button type="button" class="inline-refresh-btn" style="background:#555;" onclick="initAdminDashboard()">🔄 重新整理資料</button>
+            </div>
         </div>
         <p style="color: #aaa; margin-bottom: 20px;">已完整顯示「陳情人基本資料」與「案件資料」部分，供學生會查核更動進度與回覆：</p>
         
@@ -955,6 +958,33 @@
                 console.error(err);
                 alert("刪除案件失敗，請重試。");
             });
+        }
+    }
+
+    // 後台端：一鍵清除所有資料
+    function clearAllDataInAdmin() {
+        const password = prompt("【警告】這將清空所有案件並將單號序號歸零！\n請輸入後台管理密碼以確認執行：");
+        if (password !== "0126") {
+            alert("密碼錯誤，拒絕執行！");
+            return;
+        }
+
+        if (confirm("極度危險操作！確定要刪除「所有」案件資料，並將案件序號重置回 1 嗎？\n此動作無法復原！")) {
+            const resetPetitionsPromise = fetch(`${FIREBASE_DB_URL}petitions.json`, { method: 'DELETE' });
+            const resetCountPromise = fetch(`${FIREBASE_DB_URL}petition_count.json`, {
+                method: 'PUT',
+                body: JSON.stringify(0)
+            });
+
+            Promise.all([resetPetitionsPromise, resetCountPromise])
+                .then(() => {
+                    alert("所有陳情案件已徹底清空，案件計數器已重置為 0（下一筆將從 001 開始）。");
+                    initAdminDashboard();
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("清除失敗，請檢查資料庫連線或權限！");
+                });
         }
     }
 
