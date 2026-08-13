@@ -2,7 +2,8 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 加入 user-scalable=no 確保雙指及預設縮放行為被鎖定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>靜心高中學生會會長信箱 — 民意陳情系統</title>
     
     <!-- 設定網頁圖標 (Favicon) 與 iOS / Android 加入主畫面應用程式圖標 -->
@@ -10,6 +11,13 @@
     <link rel="apple-touch-icon" href="icon2.png">
 
     <style>
+        /* ==================== 鎖定畫面：禁止雙擊放大與手勢縮放 ==================== */
+        html, body {
+            touch-action: manipulation; /* 禁用雙擊放大，僅保留滾動與點擊 */
+            -webkit-text-size-adjust: 100%; /* 防止 iOS 轉向時自動調整字體大小 */
+        }
+        /* ======================================================================== */
+
         body {
             font-family: "Microsoft JhengHei", Arial, sans-serif;
             background-color: #121212;
@@ -219,7 +227,7 @@
             width: 100%;
         }
 
-        /* ==================== 新增：注意事項按鈕停用（暗色）樣式 ==================== */
+        /* 注意事項按鈕停用（暗色）樣式 */
         .btn-blue:disabled {
             background-color: #333333 !important;
             color: #777777 !important;
@@ -227,7 +235,6 @@
             border: 1px solid #444444 !important;
             opacity: 0.6;
         }
-        /* ============================================================================ */
 
         .preview-value {
             width: 100%;
@@ -338,7 +345,7 @@
             font-size: 14px;
             line-height: 1.7;
             color: #dddddd;
-            max-height: 350px; /* 稍微縮小基礎高度，確保各種螢幕都能有滾動條可滑動 */
+            max-height: 350px;
             overflow-y: auto; 
         }
         .instruction-content h3 {
@@ -409,9 +416,8 @@
         </div>
     </div>
 
-    <!-- ==================== 頁面二：注意事項頁面（新增滾動解鎖功能） ==================== -->
+    <!-- ==================== 頁面二：注意事項頁面 ==================== -->
     <div id="page-instructions" class="page">
-        <!-- 加設 id 以便 JS 監聽滾動事件 -->
         <div class="instruction-content" id="instructionBox">
             <h3>【學生會陳情系統使用須知與注意事項】</h3>
             
@@ -433,7 +439,6 @@
 
         <div class="btn-group">
             <button type="button" class="btn btn-gray" style="flex: 1;" onclick="switchPage('page-home')">不同意並回首頁</button>
-            <!-- 預設加上 disabled 屬性使其無法點擊且套用暗色樣式，加設 id 以便 JS 解鎖 -->
             <button type="button" class="btn btn-blue" id="agreeBtn" style="flex: 1.5;" disabled onclick="switchPage('page-write')">我已閱讀完並同意</button>
         </div>
     </div>
