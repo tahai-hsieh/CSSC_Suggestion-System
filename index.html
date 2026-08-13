@@ -219,7 +219,7 @@
             width: 100%;
         }
 
-        /* ==================== 修改：新增注意事項按鈕停用（暗色）樣式 ==================== */
+        /* ==================== 新增：注意事項按鈕停用（暗色）樣式 ==================== */
         .btn-blue:disabled {
             background-color: #333333 !important;
             color: #777777 !important;
@@ -433,7 +433,7 @@
 
         <div class="btn-group">
             <button type="button" class="btn btn-gray" style="flex: 1;" onclick="switchPage('page-home')">不同意並回首頁</button>
-            <!-- 修改：預設加上 disabled 屬性使其無法點擊且套用暗色樣式，加設 id 以便 JS 解鎖 -->
+            <!-- 預設加上 disabled 屬性使其無法點擊且套用暗色樣式，加設 id 以便 JS 解鎖 -->
             <button type="button" class="btn btn-blue" id="agreeBtn" style="flex: 1.5;" disabled onclick="switchPage('page-write')">我已閱讀完並同意</button>
         </div>
     </div>
@@ -669,9 +669,7 @@
         if (pageId === 'page-home') window.location.hash = "";
         else if (pageId === 'page-instructions') {
             window.location.hash = "instructions";
-            // ==================== 修改：每次切換進到注意事項頁時，重置按鈕狀態 ====================
             resetInstructionScroll();
-            // ===================================================================================
         }
         else if (pageId === 'page-write') window.location.hash = "write";
         else if (pageId === 'page-search') window.location.hash = "search";
@@ -881,7 +879,7 @@
             })
             .catch(err => {
                 console.error(err);
-                alert("雲端網路連線錯誤，請檢查資料庫權限或重試！");
+                alert("雲端網路連線錯誤，請檢查網路連線或權限！");
             });
     }
 
@@ -1133,7 +1131,7 @@
         });
     }
 
-    // ==================== 全新新增需求：滾動解鎖同意按鈕邏輯 ====================
+    // 滾動解鎖同意按鈕邏輯
     function initInstructionScrollListener() {
         const instructionBox = document.getElementById('instructionBox');
         const agreeBtn = document.getElementById('agreeBtn');
@@ -1141,31 +1139,34 @@
         if (!instructionBox || !agreeBtn) return;
 
         instructionBox.addEventListener('scroll', function() {
-            // 原理：元素捲動進度 + 元素本身高度 >= 內文總實際高度 - 容錯誤差 (1~2px)
-            // 當完全滑到底部時，解鎖按鈕 (移除 disabled 屬性)
             if (instructionBox.scrollTop + instructionBox.clientHeight >= instructionBox.scrollHeight - 3) {
                 agreeBtn.disabled = false;
             }
         });
     }
 
-    // 重置注意事項狀態（防重整或重進被鑽漏洞）
+    // 重置注意事項狀態
     function resetInstructionScroll() {
         const instructionBox = document.getElementById('instructionBox');
         const agreeBtn = document.getElementById('agreeBtn');
         if (instructionBox && agreeBtn) {
-            instructionBox.scrollTop = 0; // 滾動條彈回頂部
-            agreeBtn.disabled = true;    // 按鈕重新上鎖變暗
+            instructionBox.scrollTop = 0;
+            agreeBtn.disabled = true;
         }
     }
-    // =========================================================================
 
     window.addEventListener('DOMContentLoaded', () => {
+        // 註冊 Service Worker (離線快取支援)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker 註冊成功！', reg))
+                .catch(err => console.error('Service Worker 註冊失敗：', err));
+        }
+
         refreshCaptcha1();
         refreshCaptcha2();
         startRealtimeFirebaseListener();
         
-        // 啟用注意事項滾動監聽
         initInstructionScrollListener();
         
         currentActiveSearchId = sessionStorage.getItem("active_search_id") || "";
